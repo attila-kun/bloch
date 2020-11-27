@@ -13,27 +13,67 @@ function main(canvas: HTMLCanvasElement) {
 
   const scene = new THREE.Scene();
 
-  const boxWidth = 1;
-  const boxHeight = 1;
-  const boxDepth = 1;
-  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+  // light
+  {
+    const color = 0xFFFFFF;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(0, 0, 20);
+    scene.add(light);
+  }
 
-  const material = new THREE.MeshBasicMaterial({color: 0x44aa88});  // greenish blue
+  function makeSphere(): THREE.Mesh {
+    const geometry = new THREE.SphereGeometry(1, 40, 40);
+    const material = new THREE.MeshPhongMaterial( {color: 0x44aa88} );
+    material.transparent = true;
+    material.opacity = 0.7;
+    return new THREE.Mesh( geometry, material );
+  }  
 
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+  function makeArrow(): THREE.ArrowHelper {
+    const dir = new THREE.Vector3( 1, 0, 0 );
+    dir.normalize();
+    const origin = new THREE.Vector3( 0, 0, 0 );
+    const length = 1;
+    const hex = 0xffff00;
+    return new THREE.ArrowHelper( dir, origin, length, hex );  
+  }  
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  const object = new THREE.Object3D();
+  object.add(makeSphere());
+  const arrow = makeArrow();
+  object.add(arrow);
+  scene.add(object);
+
+  function onMouseMove(event: MouseEvent) {
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left)/canvas.width)*2 - 1;
+    mouse.y = -(((event.clientY - rect.top)/canvas.height)*2 - 1);
+  }
 
   function render(time: number) {
     time *= 0.001;  // convert time to seconds
-
-    cube.rotation.x = time;
-    cube.rotation.y = time;
+    object.rotation.z = time;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    const arrowHead = intersects.find(o => o.object.parent.type === 'ArrowHelper' && o.object.type === 'Mesh');
+    if (arrowHead) {
+      console.log('arrow hover', arrowHead);
+    }
 
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
+
+  window.addEventListener('mousemove', onMouseMove, false);
 
 }
 
@@ -46,7 +86,9 @@ window.onload = function() {
   }
 
   function createCanvas() {
-    const element = document.createElement('canvas');    
+    const element = document.createElement('canvas');
+    element.width = 1000;
+    element.height = 500;
     return element;
   }
   
