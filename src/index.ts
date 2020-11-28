@@ -30,23 +30,29 @@ function main(canvas: HTMLCanvasElement) {
     return new THREE.Mesh( geometry, material );
   }  
 
-  function makeArrow(): THREE.ArrowHelper {
-    const dir = new THREE.Vector3( 1, 0, 0 );
+  function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
+    const dir = new THREE.Vector3(x, y, z);
     dir.normalize();
-    const origin = new THREE.Vector3( 0, 0, 0 );
+    const origin = new THREE.Vector3(0, 0, 0);
     const length = 1;
     const hex = 0xffff00;
-    return new THREE.ArrowHelper( dir, origin, length, hex );  
+    return new THREE.ArrowHelper(dir, origin, length, hex);
   }  
 
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
+  let previousMousePosition = { x: 0, y: 0 };
+  let isDragging = false;
 
   const object = new THREE.Object3D();
   object.add(makeSphere());
-  const arrow = makeArrow();
-  object.add(arrow);
+  object.add(makeArrow(1, 0, 0));
+  object.add(makeArrow(0, 1, 0));
+  object.add(makeArrow(0, 0, 1));
   scene.add(object);
+
+  function onMouseDown(event: MouseEvent) { isDragging = true; }
+  function onMouseUp(event: MouseEvent) { isDragging = false; }
 
   function onMouseMove(event: MouseEvent) {
     // calculate mouse position in normalized device coordinates
@@ -54,11 +60,29 @@ function main(canvas: HTMLCanvasElement) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left)/canvas.width)*2 - 1;
     mouse.y = -(((event.clientY - rect.top)/canvas.height)*2 - 1);
+
+    let deltaMove = {
+      x: event.offsetX-previousMousePosition.x,
+      y: event.offsetY-previousMousePosition.y
+    };
+
+    if (isDragging) {
+      const sensitivity = 0.01;
+      object.rotation.y += deltaMove.x * sensitivity;
+      object.rotation.x += deltaMove.y * sensitivity;
+    }
+
+    previousMousePosition = { x: event.offsetX, y: event.offsetY };
   }
 
   function render(time: number) {
-    time *= 0.001;  // convert time to seconds
-    object.rotation.z = time;
+
+    function toRadians(angle: number) {
+      return angle * (Math.PI / 180);
+    }
+
+    time *= 0.001;  // convert time to seconds    
+
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
     
@@ -73,7 +97,10 @@ function main(canvas: HTMLCanvasElement) {
   }
   requestAnimationFrame(render);
 
-  window.addEventListener('mousemove', onMouseMove, false);
+  // TODO: cleanup  
+  window.addEventListener('mousedown', onMouseDown, false);
+  window.addEventListener('mouseup', onMouseUp, false);
+  window.addEventListener('mousemove', onMouseMove, false);  
 
 }
 
