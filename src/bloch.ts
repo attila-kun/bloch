@@ -17,6 +17,32 @@ function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
   return new THREE.ArrowHelper(dir, origin, length, hex);
 }
 
+function makeText(text: string): THREE.Mesh {
+  //create image
+  var bitmap = document.createElement('canvas');
+  var g = bitmap.getContext('2d');
+  bitmap.width = 100;
+  bitmap.height = 100;
+  g.font = 'Bold 20px Arial';
+
+  g.fillStyle = 'white';
+  g.fillText(text, 0, 20);
+  g.strokeStyle = 'black';
+  g.strokeText(text, 0, 20);
+
+  // canvas contents will be used for a texture
+  var texture = new THREE.Texture(bitmap) 
+  texture.needsUpdate = true;
+
+  const textSize = 0.35;
+  const geometry = new THREE.PlaneGeometry(textSize, textSize, 1 );
+  const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
+  const plane = new THREE.Mesh(geometry, material);
+  plane.position.set(0, 0, 1); // always in front of sphere
+  material.map = texture;
+  return plane;
+}
+
 export function makeBloch(canvas: HTMLCanvasElement) {
 
   const renderer = new THREE.WebGLRenderer({canvas});
@@ -44,6 +70,10 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(1, 0, 0));
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
+
+  // text  
+  scene.add(makeText('x'));
+
   scene.add(object);
 
   const raycaster = new THREE.Raycaster();
