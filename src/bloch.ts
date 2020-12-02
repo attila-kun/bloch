@@ -42,6 +42,21 @@ function makeText(text: string): THREE.Mesh {
   return plane;
 }
 
+function makeArc(): THREE.Line {
+  const curve = new THREE.EllipseCurve(
+    0,  0,            // ax, aY
+    0.5, 0.5,           // xRadius, yRadius
+    0,  Math.PI/2,  // aStartAngle, aEndAngle
+    false,            // aClockwise
+    0                 // aRotation
+  );
+  
+  const points = curve.getPoints(50).map(point => new THREE.Vector3(point.x, point.y, 0));
+  const geometry = new THREE.BufferGeometry().setFromPoints( points );
+  const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+  return new THREE.Line( geometry, material);
+}
+
 export function makeBloch(canvas: HTMLCanvasElement) {
 
   const renderer = new THREE.WebGLRenderer({canvas});
@@ -66,10 +81,13 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   }
 
   const object = new THREE.Object3D();
+  object.rotateX(-Math.PI/4);
+  object.rotateZ(-(Math.PI/2 + Math.PI/4));
   object.add(makeSphere());
   object.add(makeArrow(1, 0, 0));
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
+  object.add(makeArc());
 
   // axis labels
   const textPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1); // the plane should be between the camera and the sphere

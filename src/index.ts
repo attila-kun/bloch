@@ -29,7 +29,7 @@ function main(canvas: HTMLCanvasElement) {
 
     if (isDragging) {
       const sensitivity = 0.01;
-      bloch.rotate(deltaMove.y * sensitivity, deltaMove.x * sensitivity, 0);
+      bloch.rotate(deltaMove.y * sensitivity, 0, deltaMove.x * sensitivity);
     }
 
     previousMousePosition = { x: event.offsetX, y: event.offsetY };
