@@ -2,8 +2,8 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { makeBloch } from './bloch';
 
-function main(canvas: HTMLCanvasElement) {  
-  
+function main(canvas: HTMLCanvasElement) {
+
   let previousMousePosition = { x: 0, y: 0 };
   let isDragging = false;
   const bloch = makeBloch(canvas);
@@ -35,24 +35,26 @@ function main(canvas: HTMLCanvasElement) {
     previousMousePosition = { x: event.offsetX, y: event.offsetY };
   }
 
+  bloch.setQuantumStateVector(Math.PI/4, Math.PI/4); // TODO: remove
+
   function render(time: number) {
     bloch.render();
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
 
-  // TODO: cleanup  
+  // TODO: cleanup
   window.addEventListener('mousedown', onMouseDown, false);
   window.addEventListener('mouseup', onMouseUp, false);
-  window.addEventListener('mousemove', onMouseMove, false);  
+  window.addEventListener('mousemove', onMouseMove, false);
 
 }
 
-window.onload = function() {  
+window.onload = function() {
 
   function titleText() {
     const element = document.createElement('div');
-    element.innerHTML = _.join(['Hello', 'webpack2'], ' ');  
+    element.innerHTML = _.join(['Hello', 'webpack2'], ' ');
     return element;
   }
 
@@ -62,7 +64,7 @@ window.onload = function() {
     element.height = 500;
     return element;
   }
-  
+
   document.body.appendChild(titleText());
   let canvas = createCanvas();
   document.body.appendChild(canvas);

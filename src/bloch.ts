@@ -6,7 +6,7 @@ function makeSphere(): THREE.Mesh {
   material.transparent = true;
   material.opacity = 0.7;
   return new THREE.Mesh( geometry, material );
-}  
+}
 
 function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
   const dir = new THREE.Vector3(x, y, z);
@@ -31,13 +31,13 @@ function makeText(text: string): THREE.Mesh {
   g.strokeText(text, 0, 20);
 
   // canvas contents will be used for a texture
-  var texture = new THREE.Texture(bitmap) 
+  var texture = new THREE.Texture(bitmap)
   texture.needsUpdate = true;
 
   const textSize = 0.1;
   const geometry = new THREE.PlaneGeometry(textSize, textSize, 1 );
   const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
-  const plane = new THREE.Mesh(geometry, material);  
+  const plane = new THREE.Mesh(geometry, material);
   material.map = texture;
   return plane;
 }
@@ -50,7 +50,7 @@ function makeArc(): THREE.Line {
     false,            // aClockwise
     0                 // aRotation
   );
-  
+
   const points = curve.getPoints(50).map(point => new THREE.Vector3(point.x, point.y, 0));
   const geometry = new THREE.BufferGeometry().setFromPoints( points );
   const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
@@ -89,9 +89,15 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 0, 1));
   object.add(makeArc());
 
+  const quantumStateVector = new THREE.Object3D();
+  {
+    quantumStateVector.add(makeArrow(0, 0, 1));
+    object.add(quantumStateVector);
+  }
+
   // axis labels
   const textPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1); // the plane should be between the camera and the sphere
-  const textLayer = new THREE.Object3D();  
+  const textLayer = new THREE.Object3D();
   textLayer.position.set(0, 0, textPlane.constant); // the text layer should coincide with the text plane
   const xLabel = makeText('x');
   const yLabel = makeText('y');
@@ -107,18 +113,18 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   const mouse = new THREE.Vector2();
 
   function alignLabelToAxis(axis: THREE.Vector3, label: THREE.Mesh) {
-    const xWorldVector3 = object.localToWorld(axis);    
+    const xWorldVector3 = object.localToWorld(axis);
     const target = new THREE.Vector3(0, 0, 0);
-  
+
     // Project the axis coordinates to a plane in front of the camera to achieve a floating effect for the axis labels.
     // This is to ensure that the labels only change their vertical and horizontal positions but not their size or orientation as the user drags the Bloch sphere.
-    textPlane.intersectLine(new THREE.Line3(cameraPos, xWorldVector3), target);      
+    textPlane.intersectLine(new THREE.Line3(cameraPos, xWorldVector3), target);
     label.position.set(target.x, target.y, 0);
-  }  
+  }
 
   return {
 
-    render() {      
+    render() {
       raycaster.setFromCamera(mouse, camera);
 
       alignLabelToAxis(new THREE.Vector3(1, 0, 0), xLabel);
@@ -126,12 +132,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       alignLabelToAxis(new THREE.Vector3(0, 0, 1), zLabel);
 
       const intersects = raycaster.intersectObjects(scene.children, true);
-      
+
       const arrowHead = intersects.find(o => o.object.parent.type === 'ArrowHelper' && o.object.type === 'Mesh');
       if (arrowHead) {
         console.log('arrow hover', arrowHead);
       }
-  
+
       renderer.render(scene, camera);
     },
 
@@ -139,6 +145,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       object.rotation.x += x;
       object.rotation.y += y;
       object.rotation.z += z;
+    },
+
+    setQuantumStateVector(radians: number, phase: number) {
+      quantumStateVector.rotation.set(0, 0, 0);
+      quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), radians);
+      quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), phase);
     },
 
     updateMouse(x: number, y: number) {
