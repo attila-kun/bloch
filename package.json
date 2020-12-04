@@ -21,7 +21,9 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@types/mathjs": "^6.0.8",
     "lodash": "^4.17.20",
+    "mathjs": "^8.1.0",
     "three": "^0.123.0"
   }
 }
