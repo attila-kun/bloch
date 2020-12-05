@@ -2,7 +2,7 @@ import * as  mathjs from 'mathjs';
 
 export function calculateEigenVectors() {
 
-    const matrix = [[mathjs.complex(1, 0), 1], [1, -1]];
+    const matrix = [[mathjs.complex(1, 6), 15], [7, -2]];
     const m00 = matrix[0][0];
     const m01 = matrix[0][1];
     const m10 = matrix[1][0];
@@ -18,8 +18,22 @@ export function calculateEigenVectors() {
         return mathjs.divide(mathjs.add(mathjs.multiply(-1, b), dWithFactor), mathjs.multiply(2, a));
     }
 
-    const ratio1 = calculateRatio(1);
-    const ratio2 = calculateRatio(-1);
+    const ratio1: mathjs.Complex = calculateRatio(1) as mathjs.Complex;
+    const ratio2: mathjs.Complex = calculateRatio(-1) as mathjs.Complex;
 
-    console.log(ratio1, ratio2);
+    const polar: mathjs.PolarCoordinates = ratio1.toPolar();
+
+    const phase = mathjs.exp(mathjs.complex(0, polar.phi));
+    const theta = mathjs.atan(polar.r);
+    const x = mathjs.cos(theta);
+    const y = mathjs.multiply(mathjs.sin(theta), phase);
+
+    const product = mathjs.multiply(mathjs.matrix(matrix as any), [x as any, y as any]);
+
+    console.log('product:', product);
+    console.log('x:', x);
+    console.log('y:', y);
+
+    console.log('x ratio:', mathjs.divide(product.get([0]), x));
+    console.log('y ratio:', mathjs.divide(product.get([1]), y));
 };
