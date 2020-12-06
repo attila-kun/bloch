@@ -3,8 +3,10 @@ import * as  mathjs from 'mathjs';
 export function calculateEigenVectors() {
 
     // const matrix = [[1, 0], [0, 1]];
-    // const matrix = [[0, mathjs.complex(0, -1)], [mathjs.complex(0, 1), 1]];
-    const matrix = [[mathjs.complex(1, 6), 15], [7, mathjs.complex(-2, -5)]];
+    // const matrix = [[1, 0], [0, -1]];
+    // const matrix = [[0, 1], [1, 0]];
+    const matrix = [[0, mathjs.complex(0, -1)], [mathjs.complex(0, 1), 0]];
+    // const matrix = [[mathjs.complex(1, 6), 15], [7, mathjs.complex(-2, -5)]];
     // const matrix = mathjs.multiply(mathjs.sqrt(1/2), [[1, 1], [1, -1]]);
     // console.log('matrix', matrix);
     const m00 = matrix[0][0];
@@ -14,8 +16,10 @@ export function calculateEigenVectors() {
 
     const a = m01;
     const b = mathjs.subtract(m00, m11);
-    const c = -m10;
+    const c = mathjs.multiply(-1, m10);
     const d = mathjs.sqrt(mathjs.subtract(mathjs.multiply(b, b), mathjs.multiply(mathjs.multiply(4, a), c)) as mathjs.Complex);
+
+    console.log('a', a, 'b', b, 'c', c, 'd', d);
 
     const calculateRatio = (coefficient: 1 | -1) => {
         const dWithFactor = mathjs.multiply(d, coefficient);
@@ -37,7 +41,7 @@ export function calculateEigenVectors() {
     {
         const ratios = {ratio1, ratio2};
         for (let key in ratios) {
-            const ratio = ratios[key];
+            const ratio = ratios[key] as mathjs.Complex;
             console.log('ratio:', ratio);
             const [x, y] = calculateEigenVector(ratio);
             const product = mathjs.multiply(mathjs.matrix(matrix as any), [x as any, y as any]);
