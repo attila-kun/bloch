@@ -1,16 +1,11 @@
-// @ts-nocheck
-
 import * as  mathjs from 'mathjs';
 
-export function calculateEigenVectors() {
+type MatrixElement = number | mathjs.Complex;
+export type Matrix2x2 = [[MatrixElement, MatrixElement], [MatrixElement, MatrixElement]];
+export type EigenVector = [mathjs.Complex, mathjs.Complex];
 
-    // const matrix = [[1, 0], [0, 1]];
-    // const matrix = [[1, 0], [0, -1]];
-    // const matrix = [[0, 1], [1, 0]];
-    // const matrix = [[0, mathjs.complex(0, -1)], [mathjs.complex(0, 1), 0]];
-    // const matrix = [[mathjs.complex(1, 6), 15], [7, mathjs.complex(-2, -5)]];
-    const matrix: any = mathjs.multiply(mathjs.sqrt(1/2), [[1, 1], [1, -1]]);
-    // console.log('matrix', matrix);
+export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector, vector2: EigenVector } {
+
     const m00 = matrix[0][0] as mathjs.Complex;
     const m01 = matrix[0][1] as mathjs.Complex;
     const m10 = matrix[1][0] as mathjs.Complex;
@@ -21,8 +16,6 @@ export function calculateEigenVectors() {
     const c = mathjs.multiply(-1, m10);
     const d = mathjs.sqrt(mathjs.subtract(mathjs.multiply(b, b), mathjs.multiply(mathjs.multiply(4, a), c)) as mathjs.Complex);
 
-    console.log('a', a, 'b', b, 'c', c, 'd', d);
-
     const calculateRatio = (coefficient: 1 | -1) => {
         const dWithFactor = mathjs.multiply(d, coefficient);
         return mathjs.divide(mathjs.add(mathjs.multiply(-1, b), dWithFactor), mathjs.multiply(2, a));
@@ -31,31 +24,17 @@ export function calculateEigenVectors() {
     const ratio1: mathjs.Complex = mathjs.complex(calculateRatio(1) as any);
     const ratio2: mathjs.Complex = mathjs.complex(calculateRatio(-1) as any);
 
-    const calculateEigenVector = (ratio: mathjs.Complex) => {
+    function calculateEigenVector(ratio: mathjs.Complex): [mathjs.Complex, mathjs.Complex] {
         const polar: mathjs.PolarCoordinates = ratio.toPolar();
-        const phase = mathjs.exp(mathjs.complex(0, polar.phi));
-        const theta = mathjs.atan(polar.r); // TODO: should atan2 be used here?
-        const x = mathjs.cos(theta);
-        const y = mathjs.multiply(mathjs.sin(theta), phase);
+        const phase: mathjs.Complex = mathjs.exp(mathjs.complex(0, polar.phi));
+        const theta = mathjs.atan(polar.r);
+        const x = mathjs.complex(mathjs.cos(theta), 0);
+        const y = mathjs.multiply(mathjs.sin(theta), phase) as mathjs.Complex;
         return [x, y];
     };
 
-    {
-        const ratios = {ratio1, ratio2};
-        for (let key in ratios) {
-            const ratio = ratios[key] as mathjs.Complex;
-            const [x, y] = calculateEigenVector(ratio);
-            console.log('ratio:', ratio);
-
-            const product = mathjs.multiply(mathjs.matrix(matrix as any), [x as any, y as any]);
-
-            console.log('product:', product);
-            console.log('x:', x);
-            console.log('y:', y);
-
-            console.log('x ratio:', mathjs.divide(product.get([0]), x));
-            console.log('y ratio:', mathjs.divide(product.get([1]), y));
-        }
-    }
-
+    return {
+        vector1: calculateEigenVector(ratio1),
+        vector2: calculateEigenVector(ratio2)
+    };
 };
