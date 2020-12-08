@@ -5,13 +5,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: {
-    index: './src/index.ts',
-    tests: './src/tests.ts'
+    index: './src/index.ts'
   },
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './dist',
-    writeToDisk: true
+    contentBase: './dist'
   },
   module: {
     rules: [

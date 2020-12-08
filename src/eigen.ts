@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as  mathjs from 'mathjs';
 
 export function calculateEigenVectors() {
@@ -7,12 +9,12 @@ export function calculateEigenVectors() {
     // const matrix = [[0, 1], [1, 0]];
     // const matrix = [[0, mathjs.complex(0, -1)], [mathjs.complex(0, 1), 0]];
     // const matrix = [[mathjs.complex(1, 6), 15], [7, mathjs.complex(-2, -5)]];
-    const matrix = mathjs.multiply(mathjs.sqrt(1/2), [[1, 1], [1, -1]]);
+    const matrix: any = mathjs.multiply(mathjs.sqrt(1/2), [[1, 1], [1, -1]]);
     // console.log('matrix', matrix);
-    const m00 = matrix[0][0];
-    const m01 = matrix[0][1];
-    const m10 = matrix[1][0];
-    const m11 = matrix[1][1];
+    const m00 = matrix[0][0] as mathjs.Complex;
+    const m01 = matrix[0][1] as mathjs.Complex;
+    const m10 = matrix[1][0] as mathjs.Complex;
+    const m11 = matrix[1][1] as mathjs.Complex;
 
     const a = m01;
     const b = mathjs.subtract(m00, m11);
