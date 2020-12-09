@@ -1,4 +1,4 @@
-import { calculateEigenVectors, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
+import { calculateEigenVectors, createUnitary, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
 import * as  mathjs from 'mathjs';
 
 function assertVector(
@@ -68,4 +68,21 @@ describe('calculate eigenvectors', function() {
     })
 
   })
+
+  it.only('hello', function() {
+    const M = createUnitary(mathjs.pi/1.5, mathjs.sqrt(2/10), mathjs.sqrt(3/10), mathjs.sqrt(5/10));
+    const {vector1, vector2} = calculateEigenVectors(M);
+
+    const a: mathjs.Complex = vector1[0];
+    const b: mathjs.Complex = vector1[1];
+    const c: mathjs.Complex = vector2[0];
+    const d: mathjs.Complex = vector2[1];
+    const x = mathjs.subtract(mathjs.multiply(a, mathjs.conj(b)), mathjs.multiply(c, mathjs.conj(d)));
+    const z = (mathjs.norm(a) as number)**2 - (mathjs.norm(c) as number)**2;
+    console.log('x', x);
+    console.log('z', z);
+
+    console.log('matrix', M);
+    console.log('vector1', vector1, 'vector2', vector2);
+  });
 });

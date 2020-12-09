@@ -60,6 +60,17 @@ export const PAULI_Z: Matrix2x2 = [
 ];
 
 // This implements Nielsen & Chuang equation 4.8
-export function createUnitary(theta: number, x: number, y: number, z: number) {
+export function createUnitary(theta: number, x: number, y: number, z: number): Matrix2x2 {
 
+    const H = mathjs.add(
+        mathjs.add(mathjs.multiply(x, PAULI_X as any), mathjs.multiply(y, PAULI_Y as any)),
+        mathjs.multiply(z, PAULI_Z as any)
+    );
+    return mathjs.add(
+        mathjs.multiply(mathjs.cos(theta/2), IDENTITY as any),
+        mathjs.multiply(
+            mathjs.multiply(mathjs.complex(0, -1), mathjs.sin(theta/2)),
+            H
+        )
+    ) as Matrix2x2;
 }
