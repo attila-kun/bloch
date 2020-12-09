@@ -1,4 +1,4 @@
-import { calculateEigenVectors, EigenVector, Matrix2x2 } from './../src/eigen';
+import { calculateEigenVectors, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
 import * as  mathjs from 'mathjs';
 
 function assertVector(
@@ -18,7 +18,7 @@ describe('calculate eigenvectors', function() {
   ([
     {
       description: "Identity",
-      matrix: [[1, 0], [0, 1]],
+      matrix: IDENTITY,
       expectation: {
         vector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
         vector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
@@ -26,7 +26,7 @@ describe('calculate eigenvectors', function() {
     },
     {
       description: "Pauli-X",
-      matrix: [[0, 1], [1, 0]],
+      matrix: PAULI_X,
       expectation: {
         vector1: [mathjs.complex(mathjs.sqrt(1/2), 0), mathjs.complex(mathjs.sqrt(1/2), 0)],
         vector2: [mathjs.complex(mathjs.sqrt(1/2), 0), mathjs.complex(mathjs.multiply(-1, mathjs.sqrt(1/2)), 0)]
@@ -34,7 +34,7 @@ describe('calculate eigenvectors', function() {
     },
     {
       description: "Pauli-Y",
-      matrix: [[0, mathjs.complex(0, -1)], [mathjs.complex(0, 1), 0]],
+      matrix: PAULI_Y,
       expectation: {
         vector1: [mathjs.complex(mathjs.sqrt(1/2), 0), mathjs.complex(0, mathjs.sqrt(1/2))],
         vector2: [mathjs.complex(mathjs.sqrt(1/2), 0), mathjs.complex(0, mathjs.multiply(-1, mathjs.sqrt(1/2)))]
@@ -42,7 +42,7 @@ describe('calculate eigenvectors', function() {
     },
     {
       description: "Pauli-Z",
-      matrix: [[1, 0], [0, -1]],
+      matrix: PAULI_Z,
       expectation: {
         vector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
         vector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
@@ -58,7 +58,8 @@ describe('calculate eigenvectors', function() {
         vector1: [mathjs.complex(0.9238795325112867, 0), mathjs.complex(0.3826834323650897, 0)],
         vector2: [mathjs.complex(0.38268343236508984, 0), mathjs.complex(-0.9238795325112867, 0)]
       }
-  }] as TestCase[]).forEach(testCase => {
+    }
+  ] as TestCase[]).forEach(testCase => {
 
     it(testCase.description, function() {
       const {vector1, vector2} = calculateEigenVectors(testCase.matrix);

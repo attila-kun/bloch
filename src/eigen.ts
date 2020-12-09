@@ -38,3 +38,28 @@ export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector
         vector2: calculateEigenVector(ratio2)
     };
 };
+
+export const IDENTITY: Matrix2x2 = [
+    [1, 0],
+    [0, 1]
+];
+
+export const PAULI_X: Matrix2x2 = [
+    [0, 1],
+    [1, 0]
+];
+
+export const PAULI_Y: Matrix2x2 = [
+    [0, mathjs.complex(0, -1)],
+    [mathjs.complex(0, 1), 0]
+];
+
+export const PAULI_Z: Matrix2x2 = [
+    [1, 0],
+    [0, -1]
+];
+
+// This implements Nielsen & Chuang equation 4.8
+export function createUnitary(theta: number, x: number, y: number, z: number) {
+
+}
