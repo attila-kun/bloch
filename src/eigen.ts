@@ -1,10 +1,22 @@
 import * as  mathjs from 'mathjs';
 
 type MatrixElement = number | mathjs.Complex;
-export type Matrix2x2 = [[MatrixElement, MatrixElement], [MatrixElement, MatrixElement]];
+export type Matrix2x2 = mathjs.MathArray & [[MatrixElement, MatrixElement], [MatrixElement, MatrixElement]];
 export type EigenVector = [mathjs.Complex, mathjs.Complex];
 
+function isBasisVectorEigen(matrix: Matrix2x2): boolean {
+    const result = mathjs.multiply(matrix, [1, 0]);
+    return !!mathjs.equal(result[1] as mathjs.MathType, 0);
+}
+
 export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector, vector2: EigenVector } {
+
+    if (isBasisVectorEigen(matrix)) {
+        return {
+            vector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
+            vector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
+        };
+    }
 
     const m00 = matrix[0][0] as mathjs.Complex;
     const m01 = matrix[0][1] as mathjs.Complex;
@@ -50,8 +62,8 @@ export const PAULI_X: Matrix2x2 = [
 ];
 
 export const PAULI_Y: Matrix2x2 = [
-    [0, mathjs.complex(0, -1)],
-    [mathjs.complex(0, 1), 0]
+    [mathjs.complex(0, 0), mathjs.complex(0, -1)],
+    [mathjs.complex(0, 1), mathjs.complex(0, 0)]
 ];
 
 export const PAULI_Z: Matrix2x2 = [

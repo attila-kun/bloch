@@ -70,19 +70,29 @@ describe('calculate eigenvectors', function() {
   })
 
   it.only('hello', function() {
-    const M = createUnitary(mathjs.pi/1.5, mathjs.sqrt(2/10), mathjs.sqrt(3/10), mathjs.sqrt(5/10));
-    const {vector1, vector2} = calculateEigenVectors(M);
+    // const M = createUnitary(mathjs.pi/1.5, mathjs.multiply(-1, mathjs.sqrt(4/10)), mathjs.multiply(1, mathjs.sqrt(2/10)), mathjs.multiply(-1, mathjs.sqrt(4/10)));
+    const M = createUnitary(mathjs.multiply(1, mathjs.pi), mathjs.sqrt(1/2), 0, mathjs.sqrt(1/2));
+    // const M = createUnitary(mathjs.pi, 1, 0, 0);
+//
+    const plus = mathjs.multiply(M, [1, 0]);
+    console.log('M', M);
+    console.log('plus', plus);
 
+    const {vector1, vector2} = calculateEigenVectors(M);
+//
     const a: mathjs.Complex = vector1[0];
     const b: mathjs.Complex = vector1[1];
     const c: mathjs.Complex = vector2[0];
     const d: mathjs.Complex = vector2[1];
-    const x = mathjs.subtract(mathjs.multiply(a, mathjs.conj(b)), mathjs.multiply(c, mathjs.conj(d)));
-    const z = (mathjs.norm(a) as number)**2 - (mathjs.norm(c) as number)**2;
+    const offDiagonal = mathjs.subtract(mathjs.multiply(c, mathjs.conj(d)), mathjs.multiply(a, mathjs.conj(b))) as mathjs.Complex;
+    const x = offDiagonal.re;
+    const y = -1 * offDiagonal.im;
+    const z = (mathjs.norm(c) as number)**2 - (mathjs.norm(a) as number)**2;
     console.log('x', x);
+    console.log('y', y);
     console.log('z', z);
 
-    console.log('matrix', M);
-    console.log('vector1', vector1, 'vector2', vector2);
+    // console.log('matrix', M);
+    // console.log('vector1', vector1, 'vector2', vector2);
   });
 });
