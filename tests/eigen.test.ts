@@ -1,5 +1,22 @@
-import { calculateEigenVectors, createUnitary, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
+import { calculateEigenVectors, calculateOriantation, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
 import * as  mathjs from 'mathjs';
+import { matrix } from 'mathjs';
+
+// This implements Nielsen & Chuang equation 4.8
+function createUnitary(theta: number, x: number, y: number, z: number): Matrix2x2 {
+
+  const H = mathjs.add(
+      mathjs.add(mathjs.multiply(x, PAULI_X as any), mathjs.multiply(y, PAULI_Y as any)),
+      mathjs.multiply(z, PAULI_Z as any)
+  );
+  return mathjs.add(
+      mathjs.multiply(mathjs.cos(theta/2), IDENTITY as any),
+      mathjs.multiply(
+          mathjs.multiply(mathjs.complex(0, -1), mathjs.sin(theta/2)),
+          H
+      )
+  ) as Matrix2x2;
+}
 
 function assertVector(
   vector: EigenVector,
@@ -11,7 +28,7 @@ function assertVector(
   expect(vector[1].im).toBeCloseTo(expectation[1].im);
 }
 
-describe('calculate eigenvectors', function() {
+describe("calculate eigenvectors", function() {
 
   type TestCase = {description: string, matrix: Matrix2x2, expectation: { vector1: EigenVector, vector2: EigenVector}};
 
@@ -68,31 +85,69 @@ describe('calculate eigenvectors', function() {
     })
 
   })
+});
 
-  it.only('hello', function() {
-    // const M = createUnitary(mathjs.pi/1.5, mathjs.multiply(-1, mathjs.sqrt(4/10)), mathjs.multiply(1, mathjs.sqrt(2/10)), mathjs.multiply(-1, mathjs.sqrt(4/10)));
-    const M = createUnitary(mathjs.multiply(1, mathjs.pi), mathjs.sqrt(1/2), 0, mathjs.sqrt(1/2));
-    // const M = createUnitary(mathjs.pi, 1, 0, 0);
-//
-    const plus = mathjs.multiply(M, [1, 0]);
-    console.log('M', M);
-    console.log('plus', plus);
+describe("calculate orientation", function() {
 
-    const {vector1, vector2} = calculateEigenVectors(M);
-//
-    const a: mathjs.Complex = vector1[0];
-    const b: mathjs.Complex = vector1[1];
-    const c: mathjs.Complex = vector2[0];
-    const d: mathjs.Complex = vector2[1];
-    const offDiagonal = mathjs.subtract(mathjs.multiply(c, mathjs.conj(d)), mathjs.multiply(a, mathjs.conj(b))) as mathjs.Complex;
-    const x = offDiagonal.re;
-    const y = -1 * offDiagonal.im;
-    const z = (mathjs.norm(c) as number)**2 - (mathjs.norm(a) as number)**2;
-    console.log('x', x);
-    console.log('y', y);
-    console.log('z', z);
+  [
+    {
+      matrix: createUnitary(mathjs.pi/2, 1, 0, 0),
+      x: 1,
+      y: 0,
+      z: 0,
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(-mathjs.pi/2, 1, 0, 0),
+      x: -1,
+      y: 0,
+      z: 0,
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(mathjs.pi/2, 0, 1, 0),
+      x: 0,
+      y: 1,
+      z: 0,
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(-mathjs.pi/2, 0, 1, 0),
+      x: 0,
+      y: -1,
+      z: 0,
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(mathjs.pi/2, 0, 0, 1),
+      x: 0,
+      y: 0,
+      z: 1,
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(-mathjs.pi/2, 0, 0, 1),
+      x: 0,
+      y: 0,
+      z: -1,
+      rotationAngle: mathjs.pi/2
+    }
+  ].forEach(testCase => {
 
-    // console.log('matrix', M);
-    // console.log('vector1', vector1, 'vector2', vector2);
+    it(`matrix with orientation: x=${testCase.x}, y=${testCase.y}, z=${testCase.z}, rotationAngle=${testCase.rotationAngle}`, function() {
+
+      const { x, y, z, rotationAngle } = calculateOriantation(testCase.matrix);
+
+      // console.log('x', x);
+      // console.log('y', y);
+      // console.log('z', z);
+      // console.log('theta', rotationAngle);
+
+      expect(x).toBeCloseTo(testCase.x);
+      expect(y).toBeCloseTo(testCase.y);
+      expect(z).toBeCloseTo(testCase.z);
+      expect(rotationAngle).toBeCloseTo(testCase.rotationAngle);
+    });
+
   });
 });
