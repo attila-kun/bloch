@@ -131,7 +131,35 @@ describe("calculate orientation", function() {
       y: 0,
       z: -1,
       rotationAngle: mathjs.pi/2
-    }
+    },
+    {
+      matrix: createUnitary(mathjs.pi/2, mathjs.sqrt(1/2), 0, mathjs.sqrt(1/2)),
+      x: mathjs.sqrt(1/2),
+      y: 0,
+      z: mathjs.sqrt(1/2),
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(-mathjs.pi/2, mathjs.sqrt(1/2), 0, mathjs.sqrt(1/2)),
+      x: -mathjs.sqrt(1/2),
+      y: 0,
+      z: -mathjs.sqrt(1/2),
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(mathjs.pi/2, mathjs.sqrt(1/3), mathjs.sqrt(1/3), mathjs.sqrt(1/3)),
+      x: mathjs.sqrt(1/3),
+      y: mathjs.sqrt(1/3),
+      z: mathjs.sqrt(1/3),
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      matrix: createUnitary(-mathjs.pi/2, mathjs.sqrt(1/3), mathjs.sqrt(1/3), mathjs.sqrt(1/3)),
+      x: -mathjs.sqrt(1/3),
+      y: -mathjs.sqrt(1/3),
+      z: -mathjs.sqrt(1/3),
+      rotationAngle: mathjs.pi/2
+    },
   ].forEach(testCase => {
 
     it(`matrix with orientation: x=${testCase.x}, y=${testCase.y}, z=${testCase.z}, rotationAngle=${testCase.rotationAngle}`, function() {

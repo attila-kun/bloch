@@ -23,17 +23,17 @@ function isBasisVectorEigen(matrix: Matrix2x2): boolean {
 
 export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector, vector2: EigenVector } {
 
+    const m00 = matrix[0][0] as mathjs.Complex;
+    const m01 = matrix[0][1] as mathjs.Complex;
+    const m10 = matrix[1][0] as mathjs.Complex;
+    const m11 = matrix[1][1] as mathjs.Complex;
+
     if (isBasisVectorEigen(matrix)) {
         return {
             vector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
             vector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
         };
     }
-
-    const m00 = matrix[0][0] as mathjs.Complex;
-    const m01 = matrix[0][1] as mathjs.Complex;
-    const m10 = matrix[1][0] as mathjs.Complex;
-    const m11 = matrix[1][1] as mathjs.Complex;
 
     const a = m01;
     const b = mathjs.complex(mathjs.subtract(m00, m11) as any);
@@ -99,7 +99,6 @@ export const PAULI_X: Matrix2x2 = [
     [0, 1],
     [1, 0]
 ];
-
 
 // @ts-ignore
 export const PAULI_Y: Matrix2x2 = [
