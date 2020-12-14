@@ -1,4 +1,4 @@
-import { calculateEigenVectors, calculateOriantation, EigenVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
+import { calculateEigenVectors, calculateOriantation, UnitVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
 import * as  mathjs from 'mathjs';
 import { matrix } from 'mathjs';
 
@@ -19,8 +19,8 @@ function createUnitary(theta: number, x: number, y: number, z: number): Matrix2x
 }
 
 function assertVector(
-  vector: EigenVector,
-  expectation: EigenVector
+  vector: UnitVector,
+  expectation: UnitVector
 ) {
   expect(vector[0].re).toBeCloseTo(expectation[0].re);
   expect(vector[0].im).toBeCloseTo(expectation[0].im);
@@ -30,7 +30,7 @@ function assertVector(
 
 describe("calculate eigenvectors", function() {
 
-  type TestCase = {description: string, matrix: Matrix2x2, expectation: { vector1: EigenVector, vector2: EigenVector}};
+  type TestCase = {description: string, matrix: Matrix2x2, expectation: { vector1: UnitVector, vector2: UnitVector}};
 
   ([
     {
@@ -79,9 +79,9 @@ describe("calculate eigenvectors", function() {
   ] as TestCase[]).forEach(testCase => {
 
     it(testCase.description, function() {
-      const {vector1, vector2} = calculateEigenVectors(testCase.matrix);
-      assertVector(vector1, testCase.expectation.vector1);
-      assertVector(vector2, testCase.expectation.vector2);
+      const {eigenVector1, eigenVector2} = calculateEigenVectors(testCase.matrix);
+      assertVector(eigenVector1, testCase.expectation.vector1);
+      assertVector(eigenVector2, testCase.expectation.vector2);
     })
 
   })
@@ -159,17 +159,12 @@ describe("calculate orientation", function() {
       y: -mathjs.sqrt(1/3),
       z: -mathjs.sqrt(1/3),
       rotationAngle: mathjs.pi/2
-    },
+    }
   ].forEach(testCase => {
 
     it(`matrix with orientation: x=${testCase.x}, y=${testCase.y}, z=${testCase.z}, rotationAngle=${testCase.rotationAngle}`, function() {
 
       const { x, y, z, rotationAngle } = calculateOriantation(testCase.matrix);
-
-      // console.log('x', x);
-      // console.log('y', y);
-      // console.log('z', z);
-      // console.log('theta', rotationAngle);
 
       expect(x).toBeCloseTo(testCase.x);
       expect(y).toBeCloseTo(testCase.y);

@@ -2,7 +2,14 @@ import * as  mathjs from 'mathjs';
 
 type MatrixElement = number | mathjs.Complex;
 export type Matrix2x2 = mathjs.MathArray & [[MatrixElement, MatrixElement], [MatrixElement, MatrixElement]];
-export type EigenVector = [mathjs.Complex, mathjs.Complex];
+export type UnitVector = [mathjs.Complex, mathjs.Complex];
+type EigenValues = { eigenValue1: mathjs.Complex, eigenValue2: mathjs.Complex };
+type EigenVectors = { eigenVector1: UnitVector, eigenVector2: UnitVector };
+
+function equal(vector1: UnitVector, vector2: UnitVector) {
+    const comparison: [boolean, boolean] = mathjs.equal(vector1, vector2);
+    return comparison[0] && comparison[1];
+}
 
 // Solves quadratic equation of the type a*x^2 + b*x + c = 0
 function solveQuadratic(a: mathjs.Complex, b: mathjs.Complex, c: mathjs.Complex): [mathjs.Complex, mathjs.Complex] {
@@ -21,7 +28,7 @@ function isBasisVectorEigen(matrix: Matrix2x2): boolean {
     return !!mathjs.equal(result[1] as mathjs.MathType, 0);
 }
 
-export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector, vector2: EigenVector } {
+export function calculateEigenVectors(matrix: Matrix2x2): EigenVectors {
 
     const m00 = matrix[0][0] as mathjs.Complex;
     const m01 = matrix[0][1] as mathjs.Complex;
@@ -30,8 +37,8 @@ export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector
 
     if (isBasisVectorEigen(matrix)) {
         return {
-            vector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
-            vector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
+            eigenVector1: [mathjs.complex(1, 0), mathjs.complex(0, 0)],
+            eigenVector2: [mathjs.complex(0, 0), mathjs.complex(1, 0)]
         };
     }
 
@@ -51,12 +58,12 @@ export function calculateEigenVectors(matrix: Matrix2x2): { vector1: EigenVector
     };
 
     return {
-        vector1: calculateEigenVector(ratio1),
-        vector2: calculateEigenVector(ratio2)
+        eigenVector1: calculateEigenVector(ratio1),
+        eigenVector2: calculateEigenVector(ratio2)
     };
 };
 
-export function calculateRotationAngle(matrix: Matrix2x2): number {
+function calculateEigenValues(matrix: Matrix2x2): EigenValues {
 
     // calculating eigenvalues of the matrix
     const [eigenValue1, eigenValue2] = solveQuadratic(
@@ -68,25 +75,48 @@ export function calculateRotationAngle(matrix: Matrix2x2): number {
         ) as mathjs.Complex
     );
 
-    const rotationAngle = eigenValue1.toPolar().phi - eigenValue2.toPolar().phi;
-    return rotationAngle;
+    return { eigenValue1, eigenValue2};
+}
+
+export function calculateEigen(matrix: Matrix2x2): EigenValues & EigenVectors {
+
+    const {eigenVector1, eigenVector2} = calculateEigenVectors(matrix);
+    const {eigenValue1, eigenValue2} = calculateEigenValues(matrix);
+
+    if (equal(
+        mathjs.multiply(mathjs.multiply(matrix, eigenVector1), mathjs.conj(eigenValue1)),
+        eigenVector1
+    )) {
+        return {
+            eigenVector1: eigenVector1,
+            eigenVector2: eigenVector2,
+            eigenValue1: eigenValue1,
+            eigenValue2: eigenValue2
+        };
+    }
+
+    return {
+        eigenVector1: eigenVector2,
+        eigenVector2: eigenVector1,
+        eigenValue1: eigenValue1,
+        eigenValue2: eigenValue2
+    };
 }
 
 export function calculateOriantation(matrix: Matrix2x2): { x: number, y: number, z: number, rotationAngle: number } {
 
-    const {vector1, vector2} = calculateEigenVectors(matrix);
+    const {eigenVector1, eigenVector2, eigenValue1, eigenValue2} = calculateEigen(matrix);
 
-    const a: mathjs.Complex = vector1[0];
-    const b: mathjs.Complex = vector1[1];
-    const c: mathjs.Complex = vector2[0];
-    const d: mathjs.Complex = vector2[1];
+    const a: mathjs.Complex = eigenVector1[0];
+    const b: mathjs.Complex = eigenVector1[1];
+    const c: mathjs.Complex = eigenVector2[0];
+    const d: mathjs.Complex = eigenVector2[1];
     const offDiagonal = mathjs.subtract(mathjs.multiply(c, mathjs.conj(d)), mathjs.multiply(a, mathjs.conj(b))) as mathjs.Complex;
     const x = offDiagonal.re;
     const y = -1 * offDiagonal.im;
     const z = (mathjs.norm(c) as number)**2 - (mathjs.norm(a) as number)**2;
 
-    const rotationAngle = calculateRotationAngle(matrix);
-
+    const rotationAngle = eigenValue1.toPolar().phi - eigenValue2.toPolar().phi;
     return { x, y, z, rotationAngle };
 }
 
