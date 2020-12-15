@@ -1,5 +1,11 @@
 import * as  mathjs from 'mathjs';
 
+declare module 'mathjs' {
+    interface MathJsStatic {
+        equal: (v1: UnitVector, v2: UnitVector) => [boolean, boolean];
+    }
+}
+
 type MatrixElement = number | mathjs.Complex;
 export type Matrix2x2 = mathjs.MathArray & [[MatrixElement, MatrixElement], [MatrixElement, MatrixElement]];
 export type UnitVector = [mathjs.Complex, mathjs.Complex];
