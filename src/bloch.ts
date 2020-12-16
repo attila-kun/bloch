@@ -1,3 +1,4 @@
+import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import * as THREE from 'three';
 
 function makeSphere(): THREE.Mesh {
@@ -62,6 +63,18 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({canvas});
   const cameraPos = new THREE.Vector3(0, 0, 2);
 
+  // TODO: move to separate manager
+  const captureZones: CaptureZone[] = [];
+  let activeZone: CaptureZone = null;
+  const events: UserEvent[] = [];
+
+  const dragCaptureZone = new DragCaptureZone();
+  dragCaptureZone.onDrag((event: UserEvent) => {
+    const sensitivity = 0.01;
+    rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
+  });
+  captureZones.push(dragCaptureZone);
+
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -91,7 +104,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
   const quantumStateVector = new THREE.Object3D();
   {
-    quantumStateVector.add(makeArrow(0, 0, 1));
+    const arrow = makeArrow(0, 0, 1);
+    quantumStateVector.add(arrow);
     object.add(quantumStateVector);
   }
 
@@ -110,7 +124,6 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   scene.add(object);
 
   const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
 
   function alignLabelToAxis(axis: THREE.Vector3, label: THREE.Mesh) {
     const xWorldVector3 = object.localToWorld(axis);
@@ -122,29 +135,49 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     label.position.set(target.x, target.y, 0);
   }
 
+  function rotate(x: number, y: number, z: number) {
+    object.rotation.x += x;
+    object.rotation.y += y;
+    object.rotation.z += z;
+  }
+
   return {
 
     render() {
-      raycaster.setFromCamera(mouse, camera);
-
       alignLabelToAxis(new THREE.Vector3(1, 0, 0), xLabel);
       alignLabelToAxis(new THREE.Vector3(0, 1, 0), yLabel);
       alignLabelToAxis(new THREE.Vector3(0, 0, 1), zLabel);
 
-      const intersects = raycaster.intersectObjects(scene.children, true);
+      {
+        while (events.length) {
 
-      const arrowHead = intersects.find(o => o.object.parent.type === 'ArrowHelper' && o.object.type === 'Mesh');
-      if (arrowHead) {
-        console.log('arrow hover', arrowHead);
+          const event = events.shift();
+
+          raycaster.setFromCamera(event, camera);
+          const intersects = raycaster.intersectObjects(scene.children, true);
+
+          const arrowHead = intersects.find(o => o.object.parent.type === 'ArrowHelper' && o.object.type === 'Mesh');
+          console.log('arrowHead', arrowHead);
+
+          if (activeZone) {
+            if (!activeZone.process(true, event, intersects)) {
+              activeZone = null;
+              console.log('zone deactivated');
+            }
+          } else {
+            for (let i = 0; i < captureZones.length; i++) {
+              const captureZone = captureZones[i];
+              if (captureZone.process(false, event, intersects)) {
+                activeZone = captureZone;
+                console.log('zone activated');
+                break;
+              }
+            }
+          }
+        }
       }
 
       renderer.render(scene, camera);
-    },
-
-    rotate(x: number, y: number, z: number) {
-      object.rotation.x += x;
-      object.rotation.y += y;
-      object.rotation.z += z;
     },
 
     setQuantumStateVector(radians: number, phase: number) {
@@ -153,9 +186,16 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), phase);
     },
 
-    updateMouse(x: number, y: number) {
-        mouse.x = x;
-        mouse.y = y;
+    onMouseDown(x: number, y: number) {
+      events.push({type: 'mousedown', x, y});
+    },
+
+    onMouseUp(x: number, y: number) {
+      events.push({type: 'mouseup', x, y});
+    },
+
+    onMouseMove(x: number, y: number, deltaX: number, deltaY: number) {
+      events.push({type: 'mousemove', x, y, deltaX, deltaY});
     }
   };
 }

@@ -2,35 +2,37 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { makeBloch } from './bloch';
 
+// calculate mouse position in normalized device coordinates
+// (-1 to +1) for both components
+function toNormalizedCoordinates(canvas: HTMLCanvasElement, event: MouseEvent): [number, number] {
+  const rect = canvas.getBoundingClientRect();
+  return [
+    ((event.clientX - rect.left)/canvas.width)*2 - 1,
+    -(((event.clientY - rect.top)/canvas.height)*2 - 1)
+  ];
+}
+
 function main(canvas: HTMLCanvasElement) {
 
   let previousMousePosition = { x: 0, y: 0 };
-  let isDragging = false;
   const bloch = makeBloch(canvas);
 
-  function onMouseDown(event: MouseEvent) { isDragging = true; }
+  function onMouseDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
 
-  function onMouseUp(event: MouseEvent) { isDragging = false; }
+  function onMouseUp(event: MouseEvent) { bloch.onMouseUp(...toNormalizedCoordinates(canvas, event)); }
 
   function onMouseMove(event: MouseEvent) {
-
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-    const rect = canvas.getBoundingClientRect();
-    bloch.updateMouse(
-      ((event.clientX - rect.left)/canvas.width)*2 - 1,
-      -(((event.clientY - rect.top)/canvas.height)*2 - 1)
-    );
 
     let deltaMove = {
       x: event.offsetX-previousMousePosition.x,
       y: event.offsetY-previousMousePosition.y
     };
 
-    if (isDragging) {
-      const sensitivity = 0.01;
-      bloch.rotate(deltaMove.y * sensitivity, 0, deltaMove.x * sensitivity);
-    }
+    bloch.onMouseMove(
+      ...toNormalizedCoordinates(canvas, event),
+      deltaMove.x,
+      deltaMove.y
+    );
 
     previousMousePosition = { x: event.offsetX, y: event.offsetY };
   }
