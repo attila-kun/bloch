@@ -1,5 +1,6 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import * as THREE from 'three';
+import {intersectionsToMap, IntersectionMap} from './utils';
 
 function makeSphere(): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(1, 40, 40);
@@ -68,13 +69,6 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   let activeZone: CaptureZone = null;
   const events: UserEvent[] = [];
 
-  const dragCaptureZone = new DragCaptureZone();
-  dragCaptureZone.onDrag((event: UserEvent) => {
-    const sensitivity = 0.01;
-    rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
-  });
-  captureZones.push(dragCaptureZone);
-
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -105,9 +99,21 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   const quantumStateVector = new THREE.Object3D();
   {
     const arrow = makeArrow(0, 0, 1);
+    const dragZone = new DragCaptureZone([arrow.cone]);
+    dragZone.onDrag(() => {
+      console.log('arrow drag');
+    });
+    captureZones.push(dragZone);
     quantumStateVector.add(arrow);
     object.add(quantumStateVector);
   }
+
+  const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
+  dragCaptureZone.onDrag((event: UserEvent) => {
+    const sensitivity = 0.01;
+    rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
+  });
+  captureZones.push(dragCaptureZone);
 
   // axis labels
   const textPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1); // the plane should be between the camera and the sphere
@@ -152,24 +158,18 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         while (events.length) {
 
           const event = events.shift();
-
           raycaster.setFromCamera(event, camera);
-          const intersects = raycaster.intersectObjects(scene.children, true);
-
-          const arrowHead = intersects.find(o => o.object.parent.type === 'ArrowHelper' && o.object.type === 'Mesh');
-          console.log('arrowHead', arrowHead);
+          let intersects: IntersectionMap = intersectionsToMap(raycaster.intersectObjects(scene.children, true));
 
           if (activeZone) {
             if (!activeZone.process(true, event, intersects)) {
               activeZone = null;
-              console.log('zone deactivated');
             }
           } else {
             for (let i = 0; i < captureZones.length; i++) {
               const captureZone = captureZones[i];
               if (captureZone.process(false, event, intersects)) {
                 activeZone = captureZone;
-                console.log('zone activated');
                 break;
               }
             }
