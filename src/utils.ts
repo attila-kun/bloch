@@ -1,16 +1,18 @@
 import {Intersection, Object3D} from 'three';
 
-export type IntersectionMap = { [key: string]: boolean };
+type Map<T> = { [key: string]: T };
+export type IntersectionMap = Map<Intersection>;
+export type ObjectMap = Map<Object3D>;
 
 function toMap<T>(list: T[], keyExtractor: (item: T) => string) {
-  let map: IntersectionMap = {};
+  let map: Map<T> = {};
   for (let i = 0; i < list.length; i++) {
-    map[keyExtractor(list[i])] = true;
+    map[keyExtractor(list[i])] = list[i];
   }
   return map;
 }
 
-export function objectsToMap(objects: {uuid: string}[]) {
+export function objectsToMap(objects: Object3D[]) {
   return toMap(objects, object => object.uuid);
 }
 

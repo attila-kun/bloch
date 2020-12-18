@@ -37,8 +37,6 @@ function main(canvas: HTMLCanvasElement) {
     previousMousePosition = { x: event.offsetX, y: event.offsetY };
   }
 
-  bloch.setQuantumStateVector(Math.PI/4, Math.PI/4); // TODO: remove
-
   function render(time: number) {
     bloch.render();
     requestAnimationFrame(render);

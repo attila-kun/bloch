@@ -36,8 +36,8 @@ function makeText(text: string): THREE.Mesh {
   var texture = new THREE.Texture(bitmap)
   texture.needsUpdate = true;
 
-  const textSize = 0.1;
-  const geometry = new THREE.PlaneGeometry(textSize, textSize, 1 );
+  const textSize = 0.2;
+  const geometry = new THREE.PlaneGeometry(textSize, textSize, 1);
   const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
   const plane = new THREE.Mesh(geometry, material);
   material.map = texture;
@@ -69,11 +69,9 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   let activeZone: CaptureZone = null;
   const events: UserEvent[] = [];
 
-  const fov = 75;
-  const aspect = 2;  // the canvas default
   const near = 0.1;
   const far = 5;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  const camera = new THREE.OrthographicCamera(-3, 3, 1.5, -1.5, near, far);
   camera.position.add(cameraPos);
 
   const scene = new THREE.Scene();
@@ -90,7 +88,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   const object = new THREE.Object3D();
   object.rotateX(-Math.PI/4);
   object.rotateZ(-(Math.PI/2 + Math.PI/4));
-  object.add(makeSphere());
+  const sphere = makeSphere();
+  object.add(sphere);
   object.add(makeArrow(1, 0, 0));
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
@@ -98,10 +97,14 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
   const quantumStateVector = new THREE.Object3D();
   {
-    const arrow = makeArrow(0, 0, 1);
+    const arrow = makeArrow(1, 1, 1);
     const dragZone = new DragCaptureZone([arrow.cone]);
-    dragZone.onDrag(() => {
-      console.log('arrow drag');
+    dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
+      const sphereIntersection = intersects[sphere.uuid];
+      if (sphereIntersection) {
+        const point = sphere.worldToLocal(sphereIntersection.point);
+        arrow.setDirection(point);
+      }
     });
     captureZones.push(dragZone);
     quantumStateVector.add(arrow);
@@ -116,9 +119,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   captureZones.push(dragCaptureZone);
 
   // axis labels
-  const textPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1); // the plane should be between the camera and the sphere
   const textLayer = new THREE.Object3D();
-  textLayer.position.set(0, 0, textPlane.constant); // the text layer should coincide with the text plane
+  textLayer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
   const xLabel = makeText('x');
   const yLabel = makeText('y');
   const zLabel = makeText('z');
@@ -132,13 +134,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   const raycaster = new THREE.Raycaster();
 
   function alignLabelToAxis(axis: THREE.Vector3, label: THREE.Mesh) {
-    const xWorldVector3 = object.localToWorld(axis);
-    const target = new THREE.Vector3(0, 0, 0);
-
-    // Project the axis coordinates to a plane in front of the camera to achieve a floating effect for the axis labels.
-    // This is to ensure that the labels only change their vertical and horizontal positions but not their size or orientation as the user drags the Bloch sphere.
-    textPlane.intersectLine(new THREE.Line3(cameraPos, xWorldVector3), target);
-    label.position.set(target.x, target.y, 0);
+    const worldVector3 = object.localToWorld(axis);
+    label.position.set(worldVector3.x, worldVector3.y, 0);
   }
 
   function rotate(x: number, y: number, z: number) {
@@ -181,6 +178,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     },
 
     setQuantumStateVector(radians: number, phase: number) {
+      // TODO: stop rotating because it messes with .setDirection(...)
       quantumStateVector.rotation.set(0, 0, 0);
       quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), radians);
       quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), phase);
