@@ -1,5 +1,5 @@
 import {Object3D} from 'three';
-import {IntersectionMap, ObjectMap, objectsToMap} from './utils';
+import {IntersectionMap, UUIDMap, objectsToMap} from './utils';
 
 export type UserEvent = {
   type: 'mousedown' | 'mouseup' | 'mousemove',
@@ -24,7 +24,7 @@ export abstract class CaptureZone
 
 export class DragCaptureZone extends CaptureZone
 {
-  constructor(objects: Object3D[]) {
+  constructor(objects: {uuid: string}[]) {
     super();
     this.uuids = objectsToMap(objects);
   }
@@ -39,7 +39,7 @@ export class DragCaptureZone extends CaptureZone
     return false;
   }
 
-  private uuids: ObjectMap;
+  private uuids: UUIDMap;
 
   private isTargeted(intersects: IntersectionMap): boolean {
     if (this.uuids['background'])
