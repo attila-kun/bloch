@@ -1,4 +1,5 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
+import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
 import {intersectionsToMap, IntersectionMap} from './utils';
 
@@ -17,31 +18,6 @@ function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
   const length = 1;
   const hex = 0xffff00;
   return new THREE.ArrowHelper(dir, origin, length, hex);
-}
-
-function makeText(text: string): THREE.Mesh {
-  //create image
-  var bitmap = document.createElement('canvas');
-  var g = bitmap.getContext('2d');
-  bitmap.width = 25;
-  bitmap.height = 25;
-  g.font = 'Bold 20px Arial';
-
-  g.fillStyle = 'white';
-  g.fillText(text, 0, 20);
-  g.strokeStyle = 'black';
-  g.strokeText(text, 0, 20);
-
-  // canvas contents will be used for a texture
-  var texture = new THREE.Texture(bitmap)
-  texture.needsUpdate = true;
-
-  const textSize = 0.2;
-  const geometry = new THREE.PlaneGeometry(textSize, textSize, 1);
-  const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
-  const plane = new THREE.Mesh(geometry, material);
-  material.map = texture;
-  return plane;
 }
 
 function makeArc(): THREE.Line {
@@ -118,25 +94,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   });
   captureZones.push(dragCaptureZone);
 
-  // axis labels
-  const textLayer = new THREE.Object3D();
-  textLayer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
-  const xLabel = makeText('x');
-  const yLabel = makeText('y');
-  const zLabel = makeText('z');
-  textLayer.add(xLabel);
-  textLayer.add(yLabel);
-  textLayer.add(zLabel);
-
-  scene.add(textLayer);
+  const axisLabels = new AxisLabels(object);
+  axisLabels.layer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
+  scene.add(axisLabels.layer);
   scene.add(object);
 
   const raycaster = new THREE.Raycaster();
-
-  function alignLabelToAxis(axis: THREE.Vector3, label: THREE.Mesh) {
-    const worldVector3 = object.localToWorld(axis);
-    label.position.set(worldVector3.x, worldVector3.y, 0);
-  }
 
   function rotate(x: number, y: number, z: number) {
     object.rotation.x += x;
@@ -147,9 +110,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   return {
 
     render() {
-      alignLabelToAxis(new THREE.Vector3(1, 0, 0), xLabel);
-      alignLabelToAxis(new THREE.Vector3(0, 1, 0), yLabel);
-      alignLabelToAxis(new THREE.Vector3(0, 0, 1), zLabel);
+      axisLabels.align();
 
       {
         while (events.length) {
