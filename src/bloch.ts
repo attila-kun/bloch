@@ -2,7 +2,7 @@ import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
 import {acos, pi} from 'mathjs';
-import {intersectionsToMap, IntersectionMap} from './utils';
+import {intersectionsToMap, IntersectionMap, objectsToMap} from './utils';
 
 function makeSphere(): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(1, 40, 40);
@@ -72,6 +72,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 0, 1));
 
   let thetaArc: THREE.Line;
+  let phiArc: THREE.Line;
 
   const quantumStateVector = new THREE.Object3D();
   {
@@ -92,8 +93,14 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         if (thetaArc)
           object.remove(thetaArc);
 
+        if (phiArc)
+          object.remove(phiArc);
+
         thetaArc = makeArc(theta);
         object.add(thetaArc);
+
+        phiArc = makeArc(phi);
+        object.add(phiArc);
 
         thetaArc.rotateY(-pi/2);
         thetaArc.rotateX(-pi/2);
