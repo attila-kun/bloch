@@ -1,6 +1,7 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
+import {acos, pi} from 'mathjs';
 import {intersectionsToMap, IntersectionMap} from './utils';
 
 function makeSphere(): THREE.Mesh {
@@ -20,19 +21,19 @@ function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
   return new THREE.ArrowHelper(dir, origin, length, hex);
 }
 
-function makeArc(): THREE.Line {
+function makeArc(radians: number): THREE.Line {
   const curve = new THREE.EllipseCurve(
     0,  0,            // ax, aY
     0.5, 0.5,           // xRadius, yRadius
-    0,  Math.PI/2,  // aStartAngle, aEndAngle
+    0,  radians,  // aStartAngle, aEndAngle
     false,            // aClockwise
     0                 // aRotation
   );
 
   const points = curve.getPoints(50).map(point => new THREE.Vector3(point.x, point.y, 0));
-  const geometry = new THREE.BufferGeometry().setFromPoints( points );
-  const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-  return new THREE.Line( geometry, material);
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const material = new THREE.LineBasicMaterial({ color : 0xff0000 });
+  return new THREE.Line(geometry, material);
 }
 
 export function makeBloch(canvas: HTMLCanvasElement) {
@@ -69,7 +70,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(1, 0, 0));
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
-  object.add(makeArc());
+
+  let thetaArc: THREE.Line;
 
   const quantumStateVector = new THREE.Object3D();
   {
@@ -79,6 +81,24 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       const sphereIntersection = intersects[sphere.uuid];
       if (sphereIntersection) {
         const point = sphere.worldToLocal(sphereIntersection.point);
+        point.normalize();
+        const theta = acos(point.dot(new THREE.Vector3(0, 0, 1)));
+        let phi = acos((new THREE.Vector2(point.x, point.y).normalize()).dot(new THREE.Vector2(1, 0)));
+        if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
+          phi = pi * 2 - phi;
+
+        // console.log('point', point, 'theta orig', point.dot(new THREE.Vector3(0, 0, 1)), 'theta', theta, 'phi', phi, 'point norm', point.length());
+
+        if (thetaArc)
+          object.remove(thetaArc);
+
+        thetaArc = makeArc(theta);
+        object.add(thetaArc);
+
+        thetaArc.rotateY(-pi/2);
+        thetaArc.rotateX(-pi/2);
+        thetaArc.rotateX(phi);
+
         arrow.setDirection(point);
       }
     });

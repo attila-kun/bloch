@@ -1,4 +1,5 @@
 import {Intersection} from 'three';
+import * as  mathjs from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
