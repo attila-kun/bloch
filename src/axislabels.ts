@@ -4,20 +4,20 @@ export function createText(text: string, renderOrder?: number): THREE.Mesh {
   //create image
   var bitmap = document.createElement('canvas');
   var g = bitmap.getContext('2d');
-  bitmap.width = 25;
-  bitmap.height = 25;
-  g.font = 'Bold 20px Arial';
+  bitmap.width = 45;
+  bitmap.height = 45;
+  g.font = 'Bold 40px Arial';
 
   g.fillStyle = 'white';
-  g.fillText(text, 0, 20);
+  g.fillText(text, 0, 40);
   g.strokeStyle = 'black';
-  g.strokeText(text, 0, 20);
+  g.strokeText(text, 0, 40);
 
   // canvas contents will be used for a texture
   var texture = new THREE.Texture(bitmap)
   texture.needsUpdate = true;
 
-  const textSize = 0.2;
+  const textSize = 0.15;
   const geometry = new THREE.PlaneGeometry(textSize, textSize, 1);
   const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
   const plane = new THREE.Mesh(geometry, material);
