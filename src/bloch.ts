@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import {acos, pi} from 'mathjs';
 import {intersectionsToMap, IntersectionMap, objectsToMap} from './utils';
 
+const helperRadius = 0.6;
+
 function makeSphere(): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(1, 40, 40);
   const material = new THREE.MeshPhongMaterial( {color: 0x44aa88} );
@@ -24,7 +26,7 @@ function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
 function makeArc(radians: number): THREE.Line {
   const curve = new THREE.EllipseCurve(
     0,  0,            // ax, aY
-    0.5, 0.5,           // xRadius, yRadius
+    helperRadius, helperRadius,           // xRadius, yRadius
     0,  radians,  // aStartAngle, aEndAngle
     false,            // aClockwise
     0                 // aRotation
@@ -32,8 +34,25 @@ function makeArc(radians: number): THREE.Line {
 
   const points = curve.getPoints(50).map(point => new THREE.Vector3(point.x, point.y, 0));
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  const material = new THREE.LineBasicMaterial({ color : 0xff0000 });
+  const material = new THREE.LineBasicMaterial({ color : 0xffffff });
   return new THREE.Line(geometry, material);
+}
+
+function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
+
+  const gap = 0.025;
+  const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), endPoint]);
+  const material = new THREE.LineDashedMaterial({
+    color: 0xffffff,
+    linewidth: 1,
+    scale: 1,
+    dashSize: gap,
+    gapSize: gap,
+  });
+
+  const line = new THREE.Line(geometry, material);
+  line.computeLineDistances();
+  return line;
 }
 
 export function makeBloch(canvas: HTMLCanvasElement) {
@@ -73,6 +92,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
   let thetaArc: THREE.Line;
   let phiArc: THREE.Line;
+  let phiLine: THREE.Line;
 
   const quantumStateVector = new THREE.Object3D();
   {
@@ -96,15 +116,21 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         if (phiArc)
           object.remove(phiArc);
 
+        if (phiLine)
+          object.remove(phiLine)
+
         thetaArc = makeArc(theta);
+        thetaArc.rotateY(-pi/2);
+        thetaArc.rotateX(-pi/2);
+        thetaArc.rotateX(phi);
         object.add(thetaArc);
 
         phiArc = makeArc(phi);
         object.add(phiArc);
 
-        thetaArc.rotateY(-pi/2);
-        thetaArc.rotateX(-pi/2);
-        thetaArc.rotateX(phi);
+        phiLine = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
+        phiLine.rotateZ(phi);
+        object.add(phiLine);
 
         arrow.setDirection(point);
       }
