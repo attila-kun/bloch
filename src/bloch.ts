@@ -11,7 +11,7 @@ function makeSphere(): THREE.Mesh {
   const material = new THREE.MeshPhongMaterial( {color: 0x44aa88} );
   material.transparent = true;
   material.opacity = 0.2;
-  return new THREE.Mesh( geometry, material );
+  return new THREE.Mesh(geometry, material);
 }
 
 function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
@@ -90,7 +90,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
 
-  const thetaText = createText("θ");
+  const thetaText = createText("θ", -1);
   thetaText.rotateZ(pi/2);
   thetaText.geometry.center().translate(0.05, -0.5, 0);
   const baseThetaRotationZ = thetaText.rotation.z;
