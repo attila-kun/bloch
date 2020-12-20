@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function createText(text: string): THREE.Mesh {
+export function createText(text: string): THREE.Mesh {
   //create image
   var bitmap = document.createElement('canvas');
   var g = bitmap.getContext('2d');
@@ -19,7 +19,7 @@ function createText(text: string): THREE.Mesh {
 
   const textSize = 0.2;
   const geometry = new THREE.PlaneGeometry(textSize, textSize, 1);
-  const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
+  const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: false});
   const plane = new THREE.Mesh(geometry, material);
   material.map = texture;
   return plane;

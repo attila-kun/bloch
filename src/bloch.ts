@@ -1,8 +1,8 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
-import {AxisLabels} from './axislabels';
+import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
 import {acos, pi} from 'mathjs';
-import {intersectionsToMap, IntersectionMap, objectsToMap} from './utils';
+import {intersectionsToMap, IntersectionMap} from './utils';
 
 const helperRadius = 0.6;
 
@@ -10,7 +10,7 @@ function makeSphere(): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(1, 40, 40);
   const material = new THREE.MeshPhongMaterial( {color: 0x44aa88} );
   material.transparent = true;
-  material.opacity = 0.7;
+  material.opacity = 0.2;
   return new THREE.Mesh( geometry, material );
 }
 
@@ -90,6 +90,13 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
 
+  const thetaText = createText("θ");
+  thetaText.rotateZ(pi/2);
+  thetaText.geometry.center().translate(0.05, -0.5, 0);
+  const baseThetaRotationZ = thetaText.rotation.z;
+
+  object.add(thetaText);
+
   let thetaArc: THREE.Line;
   let phiArc: THREE.Line;
   let phiLine: THREE.Line;
@@ -108,8 +115,6 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
           phi = pi * 2 - phi;
 
-        // console.log('point', point, 'theta orig', point.dot(new THREE.Vector3(0, 0, 1)), 'theta', theta, 'phi', phi, 'point norm', point.length());
-
         if (thetaArc)
           object.remove(thetaArc);
 
@@ -124,6 +129,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         thetaArc.rotateX(-pi/2);
         thetaArc.rotateX(phi);
         object.add(thetaArc);
+
+        thetaText.rotation.set(0, 0, baseThetaRotationZ + phi/2);
 
         phiArc = makeArc(phi);
         object.add(phiArc);
