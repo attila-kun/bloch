@@ -3,6 +3,8 @@ import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
 import {acos, pi} from 'mathjs';
 import {intersectionsToMap, IntersectionMap, polarToCaertesian} from './utils';
+import { Object3D } from 'three';
+import { remove } from 'lodash';
 
 const helperRadius = 0.6;
 
@@ -112,29 +114,34 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
       phi = pi * 2 - phi;
 
-    if (thetaArc)
-      object.remove(thetaArc);
+    function removeCreateAdd<T extends Object3D>(o: T, createCallback: () => T): T {
+      if (o) {
+        object.remove(o);
+      }
 
-    if (phiArc)
-      object.remove(phiArc);
+      const newObject = createCallback();
+      object.add(newObject);
+      return newObject;
+    }
 
-    if (phiLine)
-      object.remove(phiLine)
+    thetaArc = removeCreateAdd(thetaArc, () => {
+      const arc = makeArc(theta);
+      arc.rotateY(-pi/2);
+      arc.rotateX(-pi/2);
+      arc.rotateX(phi);
+      return arc;
+    });
 
-    thetaArc = makeArc(theta);
-    thetaArc.rotateY(-pi/2);
-    thetaArc.rotateX(-pi/2);
-    thetaArc.rotateX(phi);
-    object.add(thetaArc);
+    phiArc = removeCreateAdd(phiArc, () => makeArc(phi));
+
+    phiLine = removeCreateAdd(phiLine, () => {
+      const line = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
+      line.rotateZ(phi);
+      object.add(line);
+      return line;
+    });
 
     thetaText.rotation.set(0, 0, baseThetaRotationZ + phi/2);
-
-    phiArc = makeArc(phi);
-    object.add(phiArc);
-
-    phiLine = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
-    phiLine.rotateZ(phi);
-    object.add(phiLine);
 
     phiText.position.set(...polarToCaertesian(theta/2, phi, 0.5));
     phiText.rotation.set(pi/2, phi, -theta/2);
