@@ -1,10 +1,9 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
-import {acos, pi} from 'mathjs';
+import {acos, cos, pi} from 'mathjs';
 import {intersectionsToMap, IntersectionMap, polarToCaertesian} from './utils';
 import { Object3D } from 'three';
-import { remove } from 'lodash';
 
 const helperRadius = 0.6;
 
@@ -25,10 +24,10 @@ function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
   return new THREE.ArrowHelper(dir, origin, length, hex);
 }
 
-function makeArc(radians: number): THREE.Line {
+function makeArc(radians: number, radius: number = helperRadius): THREE.Line {
   const curve = new THREE.EllipseCurve(
     0,  0,            // ax, aY
-    helperRadius, helperRadius,           // xRadius, yRadius
+    radius, radius,           // xRadius, yRadius
     0,  radians,      // aStartAngle, aEndAngle
     false,            // aClockwise
     0                 // aRotation
@@ -92,14 +91,14 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
 
-  const thetaText = createText("θ", -1);
-  thetaText.rotateZ(pi/2);
-  thetaText.geometry.center().translate(0.05, -0.5, 0);
-  const baseThetaRotationZ = thetaText.rotation.z;
-  object.add(thetaText);
+  const phiLabel = createText("Φ", -1);
+  phiLabel.rotateZ(pi/2);
+  phiLabel.geometry.center().translate(0.05, -0.5, 0);
+  const baseThetaRotationZ = phiLabel.rotation.z;
+  object.add(phiLabel);
 
-  const phiText = createText("Φ", -1);
-  object.add(phiText);
+  const thetaLabel = createText("θ", -1);
+  object.add(thetaLabel);
 
   let thetaArc: THREE.Line;
   let phiArc: THREE.Line;
@@ -132,19 +131,20 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       return arc;
     });
 
-    phiArc = removeCreateAdd(phiArc, () => makeArc(phi));
+    const projectedRadius = helperRadius * cos(Math.max(pi/2 - theta, 0));
+    phiArc = removeCreateAdd(phiArc, () => makeArc(phi, projectedRadius));
 
     phiLine = removeCreateAdd(phiLine, () => {
-      const line = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
+      const line = makaeDashedLine(new THREE.Vector3(projectedRadius, 0, 0));
       line.rotateZ(phi);
       object.add(line);
       return line;
     });
 
-    thetaText.rotation.set(0, 0, baseThetaRotationZ + phi/2);
+    phiLabel.rotation.set(0, 0, baseThetaRotationZ + phi/2);
 
-    phiText.position.set(...polarToCaertesian(theta/2, phi, 0.5));
-    phiText.rotation.set(pi/2, phi, -theta/2);
+    thetaLabel.position.set(...polarToCaertesian(theta/2, phi, 0.5));
+    thetaLabel.rotation.set(pi/2, phi, -theta/2);
 
     arrow.setDirection(point);
   }
