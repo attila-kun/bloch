@@ -1,7 +1,7 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
-import {AxisLabels, createText} from './axislabels';
+import {AxisLabels, createText, TEXT_SIZE} from './axislabels';
 import * as THREE from 'three';
-import {acos, pi} from 'mathjs';
+import {acos, cos, pi, sin} from 'mathjs';
 import {intersectionsToMap, IntersectionMap} from './utils';
 
 const helperRadius = 0.6;
@@ -94,8 +94,10 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   thetaText.rotateZ(pi/2);
   thetaText.geometry.center().translate(0.05, -0.5, 0);
   const baseThetaRotationZ = thetaText.rotation.z;
-
   object.add(thetaText);
+
+  const phiText = createText("Φ", -1);
+  object.add(phiText);
 
   let thetaArc: THREE.Line;
   let phiArc: THREE.Line;
@@ -138,6 +140,16 @@ export function makeBloch(canvas: HTMLCanvasElement) {
         phiLine = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
         phiLine.rotateZ(phi);
         object.add(phiLine);
+
+        {
+          const r = 0.5;
+          const rotationAdjustment = 0;
+          const x = r * sin(theta/2 + rotationAdjustment) * cos(phi);
+          const y = r * sin(theta/2 + rotationAdjustment) * sin(phi);
+          const z = r * cos(theta/2 + rotationAdjustment);
+          phiText.position.set(x, y, z);
+          phiText.rotation.set(pi/2, phi, -theta/2);
+        }
 
         arrow.setDirection(point);
       }
@@ -198,11 +210,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       renderer.render(scene, camera);
     },
 
-    setQuantumStateVector(radians: number, phase: number) {
-      // TODO: stop rotating because it messes with .setDirection(...)
-      quantumStateVector.rotation.set(0, 0, 0);
-      quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), radians);
-      quantumStateVector.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), phase);
+    setQuantumStateVector(theta: number, phi: number) {
+
     },
 
     onMouseDown(x: number, y: number) {
