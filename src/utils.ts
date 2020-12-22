@@ -1,5 +1,5 @@
 import {Intersection} from 'three';
-import * as  mathjs from 'mathjs';
+import {cos, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
@@ -19,4 +19,11 @@ export function objectsToMap(objects: {uuid: string}[]): UUIDMap {
 
 export function intersectionsToMap(intersections: Intersection[]) {
   return toMap(intersections, intersection => intersection.object.uuid, intersection => intersection);
+}
+
+export function polarToCaertesian(theta: number, phi: number, r: number = 1): [number, number, number] {
+  const x = r * sin(theta) * cos(phi);
+  const y = r * sin(theta) * sin(phi);
+  const z = r * cos(theta);
+  return [x, y, z];
 }

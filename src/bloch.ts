@@ -1,8 +1,8 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
-import {AxisLabels, createText, TEXT_SIZE} from './axislabels';
+import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
-import {acos, cos, pi, sin} from 'mathjs';
-import {intersectionsToMap, IntersectionMap} from './utils';
+import {acos, pi} from 'mathjs';
+import {intersectionsToMap, IntersectionMap, polarToCaertesian} from './utils';
 
 const helperRadius = 0.6;
 
@@ -27,7 +27,7 @@ function makeArc(radians: number): THREE.Line {
   const curve = new THREE.EllipseCurve(
     0,  0,            // ax, aY
     helperRadius, helperRadius,           // xRadius, yRadius
-    0,  radians,  // aStartAngle, aEndAngle
+    0,  radians,      // aStartAngle, aEndAngle
     false,            // aClockwise
     0                 // aRotation
   );
@@ -103,55 +103,53 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   let phiArc: THREE.Line;
   let phiLine: THREE.Line;
 
+  const arrow = makeArrow(0, 0, 1);
+  const dragZone = new DragCaptureZone([arrow.cone]);
+
+  function setStateVectorToPoint(point: THREE.Vector3) {
+    const theta = acos(point.dot(new THREE.Vector3(0, 0, 1)));
+    let phi = acos((new THREE.Vector2(point.x, point.y).normalize()).dot(new THREE.Vector2(1, 0)));
+    if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
+      phi = pi * 2 - phi;
+
+    if (thetaArc)
+      object.remove(thetaArc);
+
+    if (phiArc)
+      object.remove(phiArc);
+
+    if (phiLine)
+      object.remove(phiLine)
+
+    thetaArc = makeArc(theta);
+    thetaArc.rotateY(-pi/2);
+    thetaArc.rotateX(-pi/2);
+    thetaArc.rotateX(phi);
+    object.add(thetaArc);
+
+    thetaText.rotation.set(0, 0, baseThetaRotationZ + phi/2);
+
+    phiArc = makeArc(phi);
+    object.add(phiArc);
+
+    phiLine = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
+    phiLine.rotateZ(phi);
+    object.add(phiLine);
+
+    phiText.position.set(...polarToCaertesian(theta/2, phi, 0.5));
+    phiText.rotation.set(pi/2, phi, -theta/2);
+
+    arrow.setDirection(point);
+  }
+
   const quantumStateVector = new THREE.Object3D();
   {
-    const arrow = makeArrow(1, 1, 1);
-    const dragZone = new DragCaptureZone([arrow.cone]);
     dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
       const sphereIntersection = intersects[sphere.uuid];
       if (sphereIntersection) {
         const point = sphere.worldToLocal(sphereIntersection.point);
         point.normalize();
-        const theta = acos(point.dot(new THREE.Vector3(0, 0, 1)));
-        let phi = acos((new THREE.Vector2(point.x, point.y).normalize()).dot(new THREE.Vector2(1, 0)));
-        if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
-          phi = pi * 2 - phi;
-
-        if (thetaArc)
-          object.remove(thetaArc);
-
-        if (phiArc)
-          object.remove(phiArc);
-
-        if (phiLine)
-          object.remove(phiLine)
-
-        thetaArc = makeArc(theta);
-        thetaArc.rotateY(-pi/2);
-        thetaArc.rotateX(-pi/2);
-        thetaArc.rotateX(phi);
-        object.add(thetaArc);
-
-        thetaText.rotation.set(0, 0, baseThetaRotationZ + phi/2);
-
-        phiArc = makeArc(phi);
-        object.add(phiArc);
-
-        phiLine = makaeDashedLine(new THREE.Vector3(helperRadius, 0, 0));
-        phiLine.rotateZ(phi);
-        object.add(phiLine);
-
-        {
-          const r = 0.5;
-          const rotationAdjustment = 0;
-          const x = r * sin(theta/2 + rotationAdjustment) * cos(phi);
-          const y = r * sin(theta/2 + rotationAdjustment) * sin(phi);
-          const z = r * cos(theta/2 + rotationAdjustment);
-          phiText.position.set(x, y, z);
-          phiText.rotation.set(pi/2, phi, -theta/2);
-        }
-
-        arrow.setDirection(point);
+        setStateVectorToPoint(point);
       }
     });
     captureZones.push(dragZone);
@@ -211,7 +209,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     },
 
     setQuantumStateVector(theta: number, phi: number) {
-
+      setStateVectorToPoint(new THREE.Vector3(...polarToCaertesian(theta, phi)));
     },
 
     onMouseDown(x: number, y: number) {

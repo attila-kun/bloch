@@ -16,6 +16,7 @@ function main(canvas: HTMLCanvasElement) {
 
   let previousMousePosition = { x: 0, y: 0 };
   const bloch = makeBloch(canvas);
+  bloch.setQuantumStateVector(3.14/3, 3.14/2);
 
   function onMouseDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
 
