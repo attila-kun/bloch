@@ -1,7 +1,7 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
 import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
-import {acos, cos, pi} from 'mathjs';
+import {acos, cos, pi, sin} from 'mathjs';
 import {intersectionsToMap, IntersectionMap, polarToCaertesian} from './utils';
 import { Object3D } from 'three';
 
@@ -92,9 +92,6 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 0, 1));
 
   const phiLabel = createText("Φ", -1);
-  phiLabel.rotateZ(pi/2);
-  phiLabel.geometry.center().translate(0.05, -0.5, 0);
-  const baseThetaRotationZ = phiLabel.rotation.z;
   object.add(phiLabel);
 
   const thetaLabel = createText("θ", -1);
@@ -126,8 +123,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     thetaArc = removeCreateAdd(thetaArc, () => {
       const arc = makeArc(theta);
       arc.rotateY(-pi/2);
-      arc.rotateX(-pi/2);
-      arc.rotateX(phi);
+      arc.rotateX(phi-pi/2);
       return arc;
     });
 
@@ -141,7 +137,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       return line;
     });
 
-    phiLabel.rotation.set(0, 0, baseThetaRotationZ + phi/2);
+    {
+      const offset = -0.05;
+      const x = cos(phi/2) * (projectedRadius + offset);
+      const y = sin(phi/2) * (projectedRadius + offset);
+      phiLabel.position.set(x, y, 0);
+    }
 
     thetaLabel.position.set(...polarToCaertesian(theta/2, phi, 0.5));
     thetaLabel.rotation.set(pi/2, phi, -theta/2);
