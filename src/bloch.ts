@@ -68,7 +68,10 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
   const near = 0.1;
   const far = 5;
-  const camera = new THREE.OrthographicCamera(-3, 3, 1.5, -1.5, near, far);
+  const xExtent = 3;
+  const yExtent = 1.5;
+  const aspectRatio = xExtent / yExtent;
+  const camera = new THREE.OrthographicCamera(-xExtent, xExtent, yExtent, -yExtent, near, far);
   camera.position.add(cameraPos);
 
   const scene = new THREE.Scene();
@@ -155,9 +158,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   {
     dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
       const sphereIntersection = intersects[sphere.uuid];
-      if (sphereIntersection) {
+      if (sphereIntersection) { // mouse is over sphere
         const point = sphere.worldToLocal(sphereIntersection.point);
         point.normalize();
+        setStateVectorToPoint(point);
+      } else { // mouse is away from sphere
+        const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
         setStateVectorToPoint(point);
       }
     });
