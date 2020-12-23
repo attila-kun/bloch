@@ -138,13 +138,14 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     });
 
     {
-      const offset = -0.05;
+      const offset = -0.1;
       const x = cos(phi/2) * (projectedRadius + offset);
       const y = sin(phi/2) * (projectedRadius + offset);
       phiLabel.position.set(x, y, 0);
+      phiLabel.rotation.set(0, 0, pi/2+phi/2);
     }
 
-    thetaLabel.position.set(...polarToCaertesian(theta/2, phi, 0.5));
+    thetaLabel.position.set(...polarToCaertesian(theta/2+0.07, phi, 0.5));
     thetaLabel.rotation.set(pi/2, phi, -theta/2);
 
     arrow.setDirection(point);
