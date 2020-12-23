@@ -1,6 +1,5 @@
 import { calculateEigenVectors, calculateOriantation, UnitVector, IDENTITY, Matrix2x2, PAULI_X, PAULI_Y, PAULI_Z } from './../src/eigen';
 import * as  mathjs from 'mathjs';
-import { matrix } from 'mathjs';
 
 // This implements Nielsen & Chuang equation 4.8
 function createUnitary(theta: number, x: number, y: number, z: number): Matrix2x2 {
@@ -144,6 +143,17 @@ describe("calculate orientation", function() {
       x: -mathjs.sqrt(1/2),
       y: 0,
       z: -mathjs.sqrt(1/2),
+      rotationAngle: mathjs.pi/2
+    },
+    {
+      // multiplying the unitary matrix by a complex scalar on the unit circle should have no effect on the rotation angle
+      matrix: mathjs.multiply(
+        mathjs.exp(mathjs.multiply(-mathjs.pi/3, mathjs.complex(0, 1)) as mathjs.Complex),
+        createUnitary(mathjs.pi/2, mathjs.sqrt(1/2), 0, mathjs.sqrt(1/2))
+      ),
+      x: mathjs.sqrt(1/2),
+      y: 0,
+      z: mathjs.sqrt(1/2),
       rotationAngle: mathjs.pi/2
     },
     {
