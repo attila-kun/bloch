@@ -1,9 +1,10 @@
-import {CaptureZone, DragCaptureZone, UserEvent} from './capture-zone';
+import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
 import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
 import {acos, cos, pi, sin} from 'mathjs';
-import {intersectionsToMap, IntersectionMap, polarToCaertesian} from './utils';
+import {intersectionsToMap, IntersectionMap, makeArc, makeArrow, polarToCaertesian} from './utils';
 import { Object3D } from 'three';
+import {RotationAxis} from './rotationaxis';
 
 const helperRadius = 0.6;
 
@@ -13,30 +14,6 @@ function makeSphere(): THREE.Mesh {
   material.transparent = true;
   material.opacity = 0.2;
   return new THREE.Mesh(geometry, material);
-}
-
-function makeArrow(x: number, y: number, z: number): THREE.ArrowHelper {
-  const dir = new THREE.Vector3(x, y, z);
-  dir.normalize();
-  const origin = new THREE.Vector3(0, 0, 0);
-  const length = 1;
-  const hex = 0xffff00;
-  return new THREE.ArrowHelper(dir, origin, length, hex);
-}
-
-function makeArc(radians: number, radius: number = helperRadius): THREE.Line {
-  const curve = new THREE.EllipseCurve(
-    0,  0,            // ax, aY
-    radius, radius,           // xRadius, yRadius
-    0,  radians,      // aStartAngle, aEndAngle
-    false,            // aClockwise
-    0                 // aRotation
-  );
-
-  const points = curve.getPoints(50).map(point => new THREE.Vector3(point.x, point.y, 0));
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  const material = new THREE.LineBasicMaterial({ color : 0xffffff });
-  return new THREE.Line(geometry, material);
 }
 
 function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
@@ -94,6 +71,8 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
 
+  const rotationAxis = new RotationAxis(object);
+
   const phiLabel = createText("Φ", -1);
   object.add(phiLabel);
 
@@ -124,7 +103,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     }
 
     thetaArc = removeCreateAdd(thetaArc, () => {
-      const arc = makeArc(theta);
+      const arc = makeArc(theta, helperRadius);
       arc.rotateY(-pi/2);
       arc.rotateX(phi-pi/2);
       return arc;
@@ -152,9 +131,9 @@ export function makeBloch(canvas: HTMLCanvasElement) {
     thetaLabel.rotation.set(pi/2, phi, -theta/2);
 
     arrow.setDirection(point);
+    rotationAxis.setArc(point);
   }
 
-  const quantumStateVector = new THREE.Object3D();
   {
     dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
       const sphereIntersection = intersects[sphere.uuid];
@@ -168,8 +147,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
       }
     });
     captureZones.push(dragZone);
-    quantumStateVector.add(arrow);
-    object.add(quantumStateVector);
+    object.add(arrow);
   }
 
   const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
@@ -225,6 +203,11 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
     setQuantumStateVector(theta: number, phi: number) {
       setStateVectorToPoint(new THREE.Vector3(...polarToCaertesian(theta, phi)));
+    },
+
+    setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
+      rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
+      rotationAxis.setArc(new THREE.Vector3(0, 1, 0));
     },
 
     onMouseDown(x: number, y: number) {
