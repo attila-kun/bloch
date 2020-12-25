@@ -164,6 +164,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   axisLabels.layer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
   scene.add(axisLabels.layer);
   scene.add(object);
+  object.updateWorldMatrix(true, true);
 
   const raycaster = new THREE.Raycaster();
 
@@ -210,7 +211,6 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
     setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
       rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
-      rotationAxis.setArc(new THREE.Vector3(0, 1, 0));
     },
 
     onMouseDown(x: number, y: number) {

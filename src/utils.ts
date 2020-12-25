@@ -1,5 +1,5 @@
 import {ArrowHelper, BufferGeometry, EllipseCurve, Intersection, Line, LineBasicMaterial, Vector3} from 'three';
-import {cos, sin} from 'mathjs';
+import {cos, equal, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
@@ -39,13 +39,13 @@ export function makeArrow(x: number, y: number, z: number, hex: number = 0xffff0
 export function makeArc(radians: number, radius: number): THREE.Line {
   const curve = new EllipseCurve(
     0,  0,            // ax, aY
-    radius, radius,           // xRadius, yRadius
+    radius, radius,   // xRadius, yRadius
     0,  radians,      // aStartAngle, aEndAngle
     false,            // aClockwise
     0                 // aRotation
   );
 
-  const points = curve.getPoints(50).map(point => new Vector3(point.x, point.y, 0));
+  const points = curve.getPoints(equal(radians, 0) ? 0 : 50).map(point => new Vector3(point.x, point.y, 0));
   const geometry = new BufferGeometry().setFromPoints(points);
   const material = new LineBasicMaterial({ color : 0xffffff });
   return new Line(geometry, material);

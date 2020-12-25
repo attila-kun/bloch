@@ -1,6 +1,6 @@
 import {makeArc, makeArrow} from './utils';
-import {ArrowHelper, AxesHelper, Geometry, Object3D, PointsMaterial, Points, Vector3, Line, Vector2} from 'three';
-import { acos, complex } from 'mathjs';
+import {ArrowHelper, ConeGeometry, Geometry, Mesh, MeshBasicMaterial, Object3D, PointsMaterial, Points, Vector3, Line, Vector2} from 'three';
+import {complex} from 'mathjs';
 
 export class RotationAxis
 {
@@ -50,5 +50,17 @@ export class RotationAxis
     const projectedQuantumStatePoint = new Vector2(localQuantumStatePoint.x, localQuantumStatePoint.y).normalize();
     const angle = complex(projectedQuantumStatePoint.x, projectedQuantumStatePoint.y).toPolar().phi;
     this.arc.rotateZ(angle);
+
+    // cone at the end of the arc
+    {
+      const geometry = new ConeGeometry(0.02, 0.06, 16);
+      const material = new MeshBasicMaterial({color: 0xffff00});
+      const coneContainer = new Object3D();
+      const cone = new Mesh(geometry, material);
+      coneContainer.add(cone);
+      this.arc.add(coneContainer);
+      cone.position.set(distance, 0, 0);
+      coneContainer.rotateZ(this.rotationAngle);
+    }
   }
 }
