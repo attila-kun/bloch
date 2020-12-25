@@ -53,6 +53,9 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
   const scene = new THREE.Scene();
 
+  // const axesHelper = new THREE.AxesHelper(5);
+  // scene.add(axesHelper);
+
   // light
   {
     const color = 0xFFFFFF;
