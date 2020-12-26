@@ -239,7 +239,7 @@ Calc.prototype.latexToInfix = function(latex) {
     .replace(/\\left\(/g, "(") // open parenthesis
     .replace(/\\right\)/g, ")") // close parenthesis
     .replace(/[^\(](floor|ceil|(sin|cos|tan|sec|csc|cot)h?)\(([^\(\)]+)\)[^\)]/g, "($&)") // functions
-    .replace(/([^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/)])\(/g, "$1*(")
+    .replace(/([^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/|\^)])\(/g, "$1*(")
     .replace(/\)([\w])/g, ")*$1")
     .replace(/([0-9])([A-Za-z])/g, "$1*$2")
   ;
