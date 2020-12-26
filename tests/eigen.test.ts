@@ -174,7 +174,7 @@ describe("calculate orientation", function() {
 
     it(`matrix with orientation: x=${testCase.x}, y=${testCase.y}, z=${testCase.z}, rotationAngle=${testCase.rotationAngle}`, function() {
 
-      const { x, y, z, rotationAngle } = calculateOriantation(testCase.matrix);
+      const { x, y, z, rotationAngle } = calculateOriantation(testCase.matrix as Matrix2x2);
 
       expect(x).toBeCloseTo(testCase.x);
       expect(y).toBeCloseTo(testCase.y);
