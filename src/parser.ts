@@ -236,8 +236,8 @@ Calc.prototype.latexToInfix = function(latex) {
 
   infix = infix
     .replace(/\\frac{([^}]+)}{([^}]+)}/g, "($1)/($2)") // fractions
-    .replace(/\\left\(/g, "(") // open parenthesis
-    .replace(/\\right\)/g, ")") // close parenthesis
+    .replace(/(\\left\(|{)/g, "(") // open parenthesis
+    .replace(/(\\right\)|})/g, ")") // close parenthesis
     .replace(/[^\(](floor|ceil|(sin|cos|tan|sec|csc|cot)h?)\(([^\(\)]+)\)[^\)]/g, "($&)") // functions
     .replace(/([^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/|\^)])\(/g, "$1*(")
     .replace(/\)([\w])/g, ")*$1")
