@@ -139,7 +139,23 @@ describe("latex parser", function() {
     {
       expr: "sin(pi)",
       expectation: 0
-    }
+    },
+    {
+      expr: "floor(3.3)",
+      expectation: 3
+    },
+    {
+      expr: "ceil(9.9)",
+      expectation: 10
+    },
+    {
+      expr: "2ceil(9.9)",
+      expectation: 20
+    },
+    {
+      expr: "floor(3.3)/ceil(9.9)",
+      expectation: 3/10
+    },
   ].forEach(testCase => {
     it(`parses expression ${testCase.expr}`, function() {
       expect(new Calc(testCase.expr).eval()).toEqualComplex(testCase.expectation);
