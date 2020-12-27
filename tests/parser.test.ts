@@ -1,4 +1,4 @@
-import { Complex, complex, equal, pi } from 'mathjs';
+import { Complex, complex, cos, equal, pi, sin } from 'mathjs';
 import Calc from '../src/parser';
 
 describe("latex parser", function() {
@@ -27,6 +27,38 @@ describe("latex parser", function() {
     {
       expr: "2^3",
       expectation: 8
+    },
+    {
+      expr: "-2",
+      expectation: -2
+    },
+    {
+      expr: "2^-(2+1)",
+      expectation: 0.125
+    },
+    {
+      expr: "-(2+1)",
+      expectation: -3
+    },
+    {
+      expr: "-{2+1}",
+      expectation: -3
+    },
+    {
+      expr: "+(2+1)",
+      expectation: 3
+    },
+    {
+      expr: "+{2+1}",
+      expectation: 3
+    },
+    {
+      expr: "2^-1",
+      expectation: 0.5
+    },
+    {
+      expr: "2^+1",
+      expectation: 2
     },
     {
       expr: "2^(3+4+5)",
@@ -60,6 +92,42 @@ describe("latex parser", function() {
       expr: "e^{i*pi*3/2}",
       expectation: complex(0, -1)
     },
+    {
+      expr: "e^{i*(pi+pi/2)}",
+      expectation: complex(0, -1)
+    },
+    {
+      expr: "-e^{i*(pi+pi/2)}",
+      expectation: complex(0, 1)
+    },
+    {
+      expr: "1-e^{i*(pi+pi/2)}",
+      expectation: complex(1, 1)
+    },
+    {
+      expr: "cos(0)",
+      expectation: 1
+    },
+    {
+      expr: "cos(pi)",
+      expectation: -1
+    },
+    {
+      expr: "cos(pi+pi/2)",
+      expectation: cos(pi+pi/2)
+    },
+    {
+      expr: "sin(0)",
+      expectation: 0
+    },
+    {
+      expr: "sin(pi/2)",
+      expectation: sin(pi/2)
+    },
+    {
+      expr: "sin(pi)",
+      expectation: 0
+    }
   ].forEach(testCase => {
     it(`parses expression ${testCase.expr}`, function() {
       expect(new Calc(testCase.expr).eval()).toEqualComplex(testCase.expectation);

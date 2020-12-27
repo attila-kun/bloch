@@ -10,7 +10,7 @@ var CALC_CONST = {
 };
 
 var CALC_NUMARGS: [RegExp, number][] = [
-  [/^(\^|\*|\/|\+|\-)$/, 2],
+  [/^(\^\+|\^-|\^|\*|\/|\+|\-)$/, 2],
   [/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/, 1]
 ];
 
@@ -29,7 +29,7 @@ let Calc: any = function(expr, infix) {
 
     return op.match(/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/) ? 10
 
-         : (op === "^") ? 9
+         : (op === "^" || op === "^-" || op === "^+") ? 9
          : (op === "*" || op === "/") ? 8
          : (op === "+" || op === "-") ? 7
 
@@ -55,11 +55,11 @@ let Calc: any = function(expr, infix) {
   // This nice long regex matches any valid token in a user
   // supplied expression (e.g. an operator, a constant or
   // a variable)
-  var in_tokens = this.expr.match(/(\^|\*|\/|\+|\-|\(|\)|[a-zA-Z0-9\.]+)/gi);
+  var in_tokens = this.expr.match(/(\^\+|\^-|\^|\*|\/|\+|\-|\(|\)|[a-zA-Z0-9\.]+)/gi);
   var op_stack = [];
 
   in_tokens.forEach(function(token) {
-    if (/^[a-zA-Z]+$/.test(token)) {
+    if (/^[a-zA-Z]+$/.test(token) && numArgs(token) === false) {
       if (CALC_CONST.hasOwnProperty(token)) {
         // Constant. Pushes a value onto the stack.
         rpn_expr.push(["num", CALC_CONST[token]]);
@@ -166,7 +166,11 @@ Calc.prototype.eval = function(x) {
           break;
 
         // exponents
+        case "^-":
+          stack.push(pow(args[0], multiply(-1, args[1])));
+          break;
         case "^":
+        case "^+":
           stack.push(pow(args[0], args[1]));
           break;
 
@@ -247,6 +251,7 @@ Calc.prototype.latexToInfix = function(latex) {
     .replace(/\)([\w])/g, ")*$1")
     .replace(/([0-9])([A-Za-z])/g, "$1*$2")
     .replace(/(i)([0-9])/g, "$1*$2")
+    .replace(/(^|[^a-zA-Z0-9\^])([\+-])([a-zA-Z0-9(])/g, "$10$2$3") // standalone - or + signs are prefixed with 0 so the operator will always have 2 arguments
   ;
 
   return infix;
