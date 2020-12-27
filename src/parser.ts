@@ -50,8 +50,6 @@ let Calc: any = function(expr, infix) {
   this.rpn_expr = [];
   var rpn_expr = this.rpn_expr;
 
-  this.expr = this.expr.replace(/\s+/g, "");
-
   // This nice long regex matches any valid token in a user
   // supplied expression (e.g. an operator, a constant or
   // a variable)

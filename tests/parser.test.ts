@@ -113,6 +113,18 @@ describe("latex parser", function() {
       expectation: -1
     },
     {
+      expr: "cos pi",
+      expectation: cos(pi)
+    },
+    {
+      expr: "cos                      pi",
+      expectation: cos(pi)
+    },
+    {
+      expr: "cos pi/2",
+      expectation: cos(pi)/2
+    },
+    {
       expr: "cos(pi+pi/2)",
       expectation: cos(pi+pi/2)
     },
