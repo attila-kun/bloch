@@ -9,5 +9,5 @@
     "module": "es6",
     "target": "es5"
   },
-  "files": [ "./src/index.ts" ]
+  "files": [ "./src/index.ts", "jest.d.ts" ]
 }

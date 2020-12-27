@@ -1,9 +1,12 @@
 // @ts-nocheck
 
+import {add, complex, divide, multiply, pow, subtract} from 'mathjs';
+
 var CALC_CONST = {
   // define your constants
   e: Math.E,
-  pi: Math.PI
+  pi: Math.PI,
+  i: complex(0, 1)
 };
 
 var CALC_NUMARGS: [RegExp, number][] = [
@@ -11,6 +14,7 @@ var CALC_NUMARGS: [RegExp, number][] = [
   [/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/, 1]
 ];
 
+// Adapted from https://stackoverflow.com/questions/18477968/convert-latex-to-dynamic-javascript-function
 let Calc: any = function(expr, infix) {
   this.valid = true;
   this.expr = expr;
@@ -55,7 +59,7 @@ let Calc: any = function(expr, infix) {
   var op_stack = [];
 
   in_tokens.forEach(function(token) {
-    if (/^[a-zA-Z]$/.test(token)) {
+    if (/^[a-zA-Z]+$/.test(token)) {
       if (CALC_CONST.hasOwnProperty(token)) {
         // Constant. Pushes a value onto the stack.
         rpn_expr.push(["num", CALC_CONST[token]]);
@@ -149,21 +153,21 @@ Calc.prototype.eval = function(x) {
       switch (token[1]) {
         /* BASIC ARITHMETIC OPERATORS */
         case "*":
-          stack.push(args[0] * args[1]);
+          stack.push(multiply(args[0], args[1]));
           break;
         case "/":
-          stack.push(args[0] / args[1]);
+          stack.push(divide(args[0], args[1]));
           break;
         case "+":
-          stack.push(args[0] + args[1]);
+          stack.push(add(args[0], args[1]));
           break;
         case "-":
-          stack.push(args[0] - args[1]);
+          stack.push(subtract(args[0], args[1]));
           break;
 
         // exponents
         case "^":
-          stack.push(Math.pow(args[0], args[1]));
+          stack.push(pow(args[0], args[1]));
           break;
 
         /* TRIG FUNCTIONS */
@@ -242,6 +246,7 @@ Calc.prototype.latexToInfix = function(latex) {
     .replace(/([^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/|\^)])\(/g, "$1*(")
     .replace(/\)([\w])/g, ")*$1")
     .replace(/([0-9])([A-Za-z])/g, "$1*$2")
+    .replace(/(i)([0-9])/g, "$1*$2")
   ;
 
   return infix;

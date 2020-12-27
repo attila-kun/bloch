@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as  mathjs from 'mathjs';
 
 declare module 'mathjs' {
