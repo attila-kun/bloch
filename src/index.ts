@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
 import { sqrt } from 'mathjs';
 import { makeBloch } from './bloch';
+import { evaluate } from './parser';
 
 // calculate mouse position in normalized device coordinates
 // (-1 to +1) for both components
@@ -46,7 +46,7 @@ function main(canvas: HTMLCanvasElement) {
   requestAnimationFrame(render);
 
   // TODO: cleanup
-  window.addEventListener('mousedown', onMouseDown, false);
+  canvas.addEventListener('mousedown', onMouseDown, false);
   window.addEventListener('mouseup', onMouseUp, false);
   window.addEventListener('mousemove', onMouseMove, false);
 
@@ -56,8 +56,50 @@ window.onload = function() {
 
   function titleText() {
     const element = document.createElement('div');
-    element.innerHTML = _.join(['Hello', 'webpack2'], ' ');
+    element.innerHTML = "Enter a unitary matrix:";
     return element;
+  }
+
+  function createInput() {
+    const inputContainer = document.createElement('div');
+
+    inputContainer.innerHTML = `
+    <table>
+    <thead>
+    </thead>
+    <tbody>
+        <tr>
+            <td><input class="u00"/></td>
+            <td><input class="u01"/></td>
+        </tr>
+        <tr>
+            <td><input class="u10"/></td>
+            <td><input class="u11"/></td>
+        </tr>
+    </tbody>
+    </table>
+    `;
+
+    const u00: HTMLInputElement = inputContainer.querySelector('.u00');
+    const u01: HTMLInputElement = inputContainer.querySelector('.u01');
+    const u10: HTMLInputElement = inputContainer.querySelector('.u10');
+    const u11: HTMLInputElement = inputContainer.querySelector('.u11');
+
+    return {
+      element: inputContainer,
+      setMatrix(u00Text: string, u01Text: string, u10Text: string, u11Text: string) {
+        u00.value = u00Text;
+        u01.value = u01Text;
+        u10.value = u10Text;
+        u11.value = u11Text;
+      },
+      getMatrix() {
+        return [
+          [evaluate(u00.value), evaluate(u01.value)],
+          [evaluate(u10.value), evaluate(u11.value)]
+        ];
+      }
+    };
   }
 
   function createCanvas() {
@@ -68,7 +110,12 @@ window.onload = function() {
   }
 
   document.body.appendChild(titleText());
+  const matrixInput = createInput();
+  document.body.appendChild(matrixInput.element);
   let canvas = createCanvas();
   document.body.appendChild(canvas);
   main(canvas);
+
+  matrixInput.setMatrix('sqrt(1/2)', 'sqrt(1/2)', 'sqrt(1/2)', '-sqrt(1/2)');
+  console.log(matrixInput.getMatrix());
 };

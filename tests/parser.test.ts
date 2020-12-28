@@ -1,5 +1,5 @@
-import { Complex, complex, cos, equal, pi, sin } from 'mathjs';
-import Calc from '../src/parser';
+import { complex, cos, pi, sin, sqrt } from 'mathjs';
+import { evaluate } from '../src/parser';
 
 describe("latex parser", function() {
 
@@ -156,9 +156,21 @@ describe("latex parser", function() {
       expr: "floor(3.3)/ceil(9.9)",
       expectation: 3/10
     },
+    {
+      expr: "sqrt(1/2)",
+      expectation: sqrt(1/2)
+    },
+    {
+      expr: "-sqrt(1/2)",
+      expectation: -sqrt(1/2)
+    },
+    {
+      expr: "sqrt(e^(i*pi/2))",
+      expectation: complex(0.7071067811865476, 0.7071067811865476)
+    },
   ].forEach(testCase => {
-    it(`parses expression ${testCase.expr}`, function() {
-      expect(new Calc(testCase.expr).eval()).toEqualComplex(testCase.expectation);
+    it(`evaluates expression ${testCase.expr}`, function() {
+      expect(evaluate(testCase.expr)).toEqualComplex(testCase.expectation);
     });
   });
 
@@ -174,8 +186,8 @@ describe("latex parser", function() {
       expectation: 8
     }
   ].forEach(testCase => {
-    it(`parses expression with variable ${testCase.expr}`, function() {
-      expect(new Calc(testCase.expr).eval(testCase.x)).toBe(testCase.expectation);
+    it(`evaluates expression with variable ${testCase.expr}`, function() {
+      expect(evaluate(testCase.expr, testCase.x)).toBe(testCase.expectation);
     });
   });
 });

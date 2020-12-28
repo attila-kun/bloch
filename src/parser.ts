@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import {add, complex, divide, multiply, pow, subtract} from 'mathjs';
+import {add, complex, divide, multiply, pow, sqrt, subtract} from 'mathjs';
 
 var CALC_CONST = {
   // define your constants
@@ -9,13 +9,15 @@ var CALC_CONST = {
   i: complex(0, 1)
 };
 
+const FUNCTION_REGEX = /^(floor|ceil|sqrt|(sin|cos|tan|sec|csc|cot)h?)$/;
+
 var CALC_NUMARGS: [RegExp, number][] = [
   [/^(\^\+|\^-|\^|\*|\/|\+|\-)$/, 2],
-  [/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/, 1]
+  [FUNCTION_REGEX, 1]
 ];
 
 // Adapted from https://stackoverflow.com/questions/18477968/convert-latex-to-dynamic-javascript-function
-let Calc: any = function(expr, infix) {
+function Calc(expr: string, infix?) {
   this.valid = true;
   this.expr = expr;
 
@@ -27,7 +29,7 @@ let Calc: any = function(expr, infix) {
   var OpPrecedence = function(op) {
     if (typeof op == "undefined") return 0;
 
-    return op.match(/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/) ? 10
+    return op.match(FUNCTION_REGEX) ? 10
 
          : (op === "^" || op === "^-" || op === "^+") ? 9
          : (op === "*" || op === "/") ? 8
@@ -37,7 +39,7 @@ let Calc: any = function(expr, infix) {
   }
 
   var OpAssociativity = function(op) {
-    return op.match(/^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?)$/) ? "R" : "L";
+    return op.match(FUNCTION_REGEX) ? "R" : "L";
   }
 
   var numArgs = function(op) {
@@ -217,9 +219,13 @@ Calc.prototype.eval = function(x) {
         case "ceil":
           stack.push(Math.ceil(args[0]));
           break;
+        case "sqrt":
+          stack.push(sqrt(args[0]));
+          break;
 
         default:
-          // unknown operator; error out
+          // unknown operator;
+          // TODO: return descriptive error
           return false;
       }
     }
@@ -244,8 +250,8 @@ Calc.prototype.latexToInfix = function(latex) {
     .replace(/\\frac{([^}]+)}{([^}]+)}/g, "($1)/($2)") // fractions
     .replace(/(\\left\(|{)/g, "(") // open parenthesis
     .replace(/(\\right\)|})/g, ")") // close parenthesis
-    .replace(/[^\(](floor|ceil|(sin|cos|tan|sec|csc|cot)h?)\(([^\(\)]+)\)[^\)]/g, "($&)") // functions
-    .replace(/([^(floor|ceil|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/|\^)])\(/g, "$1*(")
+    .replace(/[^\(](floor|ceil|sqrt|(sin|cos|tan|sec|csc|cot)h?)\(([^\(\)]+)\)[^\)]/g, "($&)") // functions
+    .replace(/([^(floor|ceil|sqrt|(sin|cos|tan|sec|csc|cot)h?|\+|\-|\*|\/|\^)])\(/g, "$1*(")
     .replace(/\)([\w])/g, ")*$1")
     .replace(/([0-9])([A-Za-z])/g, "$1*$2")
     .replace(/(i)([0-9])/g, "$1*$2")
@@ -255,4 +261,6 @@ Calc.prototype.latexToInfix = function(latex) {
   return infix;
 };
 
-export default Calc;
+export function evaluate(expr: string, variable?) {
+  return new Calc(expr).eval(variable);
+}

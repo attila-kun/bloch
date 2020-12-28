@@ -13,7 +13,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^26.0.16",
-    "@types/lodash": "^4.14.165",
     "clean-webpack-plugin": "^3.0.0",
     "html-webpack-plugin": "^4.5.0",
     "jest": "^26.6.3",
@@ -26,7 +25,6 @@
   },
   "dependencies": {
     "@types/mathjs": "^6.0.8",
-    "lodash": "^4.17.20",
     "mathjs": "^8.1.0",
     "three": "^0.123.0"
   }

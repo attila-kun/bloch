@@ -1,4 +1,3 @@
-import {Object3D} from 'three';
 import {IntersectionMap, UUIDMap, objectsToMap} from './utils';
 
 export type UserEvent = {
@@ -10,7 +9,6 @@ export type UserEvent = {
 };
 
 type Callback = (event: UserEvent, intersects: IntersectionMap) => void;
-type InteractionObject = {uuid: string} | Object3D;
 
 export abstract class CaptureZone
 {
