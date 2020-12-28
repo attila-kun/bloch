@@ -86,10 +86,12 @@ export function makeBloch(canvas: HTMLCanvasElement) {
   let phiArc: THREE.Line;
   let phiLine: THREE.Line;
 
-  const arrow = makeArrow(0, 0, 1);
+  let stateVector: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
+  const arrow = makeArrow(stateVector.x, stateVector.y, stateVector.z);
   const dragZone = new DragCaptureZone([arrow.cone]);
 
   function setStateVectorToPoint(point: THREE.Vector3) {
+    stateVector = point;
     const theta = acos(point.dot(new THREE.Vector3(0, 0, 1)));
     let phi = acos((new THREE.Vector2(point.x, point.y).normalize()).dot(new THREE.Vector2(1, 0)));
     if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
@@ -211,6 +213,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
     setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
       rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
+      rotationAxis.setArc(stateVector);
     },
 
     onMouseDown(x: number, y: number) {

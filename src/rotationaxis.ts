@@ -2,6 +2,7 @@ import {makeArc, makeArrow} from './utils';
 import {ArrowHelper, ConeGeometry, Geometry, Mesh, MeshBasicMaterial, Object3D, PointsMaterial, Points, Vector3, Line, Vector2} from 'three';
 import {complex} from 'mathjs';
 
+// Renders the rotation axis and rotation angle of the unitary matrix entered by the user.
 export class RotationAxis
 {
   private arc: Line;
@@ -30,6 +31,9 @@ export class RotationAxis
   }
 
   setArc(quantumStatePoint: Vector3) {
+    if (!this.direction)
+      return;
+
     const cosineAngle = quantumStatePoint.dot(this.direction);
     const closestPointOnLine = this.direction.clone().multiplyScalar(cosineAngle);
     const closestPointOnLineCoords: [number, number, number] = [closestPointOnLine.x, closestPointOnLine.y, closestPointOnLine.z];

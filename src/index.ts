@@ -1,5 +1,6 @@
 import { sqrt } from 'mathjs';
 import { makeBloch } from './bloch';
+import { calculateOriantation, Matrix2x2 } from './eigen';
 import { evaluate } from './parser';
 
 // calculate mouse position in normalized device coordinates
@@ -16,7 +17,6 @@ function main(canvas: HTMLCanvasElement) {
 
   let previousMousePosition = { x: 0, y: 0 };
   const bloch = makeBloch(canvas);
-  bloch.setRotationAxis(sqrt(1/2), 0, sqrt(1/2), 3.14);
   bloch.setQuantumStateVector(3.14/4, 3.14/4);
 
   function onMouseDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
@@ -50,6 +50,7 @@ function main(canvas: HTMLCanvasElement) {
   window.addEventListener('mouseup', onMouseUp, false);
   window.addEventListener('mousemove', onMouseMove, false);
 
+  return bloch;
 }
 
 window.onload = function() {
@@ -87,18 +88,38 @@ window.onload = function() {
 
     return {
       element: inputContainer,
-      setMatrix(u00Text: string, u01Text: string, u10Text: string, u11Text: string) {
-        u00.value = u00Text;
-        u01.value = u01Text;
-        u10.value = u10Text;
-        u11.value = u11Text;
+      setMatrix(matrix: [[string, string], [string, string]]) {
+        u00.value = matrix[0][0];
+        u01.value = matrix[0][1];
+        u10.value = matrix[1][0];
+        u11.value = matrix[1][1];
       },
-      getMatrix() {
+      getMatrix(): Matrix2x2 {
         return [
           [evaluate(u00.value), evaluate(u01.value)],
           [evaluate(u10.value), evaluate(u11.value)]
         ];
       }
+    };
+  }
+
+  function createGateSelector(onClick: (option: string) => void) {
+    const gateSelectorContainer = document.createElement('div');
+    gateSelectorContainer.innerHTML = `
+      <button name="X">X</button>
+      <button name="Y">Y</button>
+      <button name="Z">Z</button>
+      <button name="H">H</button>
+    `;
+
+    gateSelectorContainer.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => {
+        onClick(button.name);
+      });
+    });
+
+    return {
+      element: gateSelectorContainer
     };
   }
 
@@ -112,10 +133,20 @@ window.onload = function() {
   document.body.appendChild(titleText());
   const matrixInput = createInput();
   document.body.appendChild(matrixInput.element);
+  const gateSelector = createGateSelector((option: string) => {
+    const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
+      'X': [['0', '1'], ['1', '0']],
+      'Y': [['0', '-i'], ['i', '0']],
+      'Z': [['1', '0'], ['0', '-1']],
+      'H': [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']]
+    }
+    matrixInput.setMatrix(optionToMatrix[option]);
+    const matrix = matrixInput.getMatrix();
+    const orientation = calculateOriantation(matrix);
+    bloch.setRotationAxis(orientation.x, orientation.y, orientation.z, orientation.rotationAngle);
+  });
+  document.body.appendChild(gateSelector.element);
   let canvas = createCanvas();
   document.body.appendChild(canvas);
-  main(canvas);
-
-  matrixInput.setMatrix('sqrt(1/2)', 'sqrt(1/2)', 'sqrt(1/2)', '-sqrt(1/2)');
-  console.log(matrixInput.getMatrix());
+  const bloch = main(canvas);
 };
