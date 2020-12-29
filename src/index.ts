@@ -1,7 +1,6 @@
-import { sqrt } from 'mathjs';
 import { makeBloch } from './bloch';
-import { calculateOriantation, Matrix2x2 } from './eigen';
-import { evaluate } from './parser';
+import { calculateOriantation } from './eigen';
+import { MatrixInput } from './matrixinput';
 
 // calculate mouse position in normalized device coordinates
 // (-1 to +1) for both components
@@ -61,48 +60,6 @@ window.onload = function() {
     return element;
   }
 
-  function createInput() {
-    const inputContainer = document.createElement('div');
-
-    inputContainer.innerHTML = `
-    <table>
-    <thead>
-    </thead>
-    <tbody>
-        <tr>
-            <td><input class="u00"/></td>
-            <td><input class="u01"/></td>
-        </tr>
-        <tr>
-            <td><input class="u10"/></td>
-            <td><input class="u11"/></td>
-        </tr>
-    </tbody>
-    </table>
-    `;
-
-    const u00: HTMLInputElement = inputContainer.querySelector('.u00');
-    const u01: HTMLInputElement = inputContainer.querySelector('.u01');
-    const u10: HTMLInputElement = inputContainer.querySelector('.u10');
-    const u11: HTMLInputElement = inputContainer.querySelector('.u11');
-
-    return {
-      element: inputContainer,
-      setMatrix(matrix: [[string, string], [string, string]]) {
-        u00.value = matrix[0][0];
-        u01.value = matrix[0][1];
-        u10.value = matrix[1][0];
-        u11.value = matrix[1][1];
-      },
-      getMatrix(): Matrix2x2 {
-        return [
-          [evaluate(u00.value), evaluate(u01.value)],
-          [evaluate(u10.value), evaluate(u11.value)]
-        ];
-      }
-    };
-  }
-
   function createGateSelector(onClick: (option: string) => void) {
     const gateSelectorContainer = document.createElement('div');
     gateSelectorContainer.innerHTML = `
@@ -131,8 +88,7 @@ window.onload = function() {
   }
 
   document.body.appendChild(titleText());
-  const matrixInput = createInput();
-  document.body.appendChild(matrixInput.element);
+  const matrixInput = new MatrixInput(document.body);
   const gateSelector = createGateSelector((option: string) => {
     const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
       'X': [['0', '1'], ['1', '0']],
