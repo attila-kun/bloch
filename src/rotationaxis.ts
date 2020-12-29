@@ -9,13 +9,16 @@ export class RotationAxis
   private direction: Vector3;
   private dot: Points;
   private parent: Object3D;
-  private arrowHelper: ArrowHelper;
+  private arrowHelper0: ArrowHelper;
+  private arrowHelper1: ArrowHelper;
   private rotationAngle: number;
 
   constructor(p: Object3D) {
     this.parent = p;
-    this.arrowHelper = makeArrow(1, 0, 0, 0xff0000);
-    this.parent.add(this.arrowHelper);
+    this.arrowHelper0 = makeArrow(1, 0, 0, 0xff0000);
+    this.parent.add(this.arrowHelper0);
+    this.arrowHelper1 = makeArrow(1, 0, 0, 0xff0000);
+    this.parent.add(this.arrowHelper1);
 
     const dotGeometry = new Geometry();
     dotGeometry.vertices.push(new Vector3(0, 0, 0));
@@ -26,7 +29,8 @@ export class RotationAxis
 
   setDirection(dir: Vector3, angle: number) {
     this.direction = dir;
-    this.arrowHelper.setDirection(this.direction);
+    this.arrowHelper0.setDirection(this.direction);
+    this.arrowHelper1.setDirection(this.direction.clone().multiplyScalar(-1));
     this.rotationAngle = angle;
   }
 
