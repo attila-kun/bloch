@@ -1,9 +1,11 @@
-import { sqrt } from 'mathjs';
 import { Matrix2x2 } from './eigen';
 import { evaluate } from './parser';
 
+type OnChangeCallback = (matrix: Matrix2x2) => void;
+
 export class MatrixInput {
 
+  private onChange: OnChangeCallback;
   private container: HTMLDivElement;
   private parent: HTMLElement
   private u00: HTMLInputElement
@@ -11,7 +13,8 @@ export class MatrixInput {
   private u10: HTMLInputElement
   private u11: HTMLInputElement
 
-  constructor(p: HTMLElement) {
+  constructor(p: HTMLElement, callback: OnChangeCallback) {
+    this.onChange = callback;
     this.parent = p;
     this.container = document.createElement('div');
     this.container.innerHTML = `
@@ -35,6 +38,11 @@ export class MatrixInput {
     this.u01 = this.container.querySelector('.u01');
     this.u10 = this.container.querySelector('.u10');
     this.u11 = this.container.querySelector('.u11');
+
+    [this.u00, this.u01, this.u10, this.u11].forEach(input => {
+      input.addEventListener('change', this.onInputChange); // TODO: cleanup
+    });
+
     this.parent.appendChild(this.container);
   }
 
@@ -50,5 +58,9 @@ export class MatrixInput {
       [evaluate(this.u00.value), evaluate(this.u01.value)],
       [evaluate(this.u10.value), evaluate(this.u11.value)]
     ];
+  }
+
+  private onInputChange = () => {
+    this.onChange(this.getMatrix());
   }
 }

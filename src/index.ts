@@ -1,5 +1,5 @@
 import { makeBloch } from './bloch';
-import { calculateOriantation } from './eigen';
+import { calculateOriantation, Matrix2x2 } from './eigen';
 import { MatrixInput } from './matrixinput';
 
 // calculate mouse position in normalized device coordinates
@@ -88,7 +88,7 @@ window.onload = function() {
   }
 
   document.body.appendChild(titleText());
-  const matrixInput = new MatrixInput(document.body);
+  const matrixInput = new MatrixInput(document.body, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
   const gateSelector = createGateSelector((option: string) => {
     const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
       'X': [['0', '1'], ['1', '0']],
@@ -97,10 +97,14 @@ window.onload = function() {
       'H': [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']]
     }
     matrixInput.setMatrix(optionToMatrix[option]);
-    const matrix = matrixInput.getMatrix();
+    setMatrixOnBloch(matrixInput.getMatrix());
+  });
+
+  const setMatrixOnBloch = (matrix: Matrix2x2) => {
     const orientation = calculateOriantation(matrix);
     bloch.setRotationAxis(orientation.x, orientation.y, orientation.z, orientation.rotationAngle);
-  });
+  };
+
   document.body.appendChild(gateSelector.element);
   let canvas = createCanvas();
   document.body.appendChild(canvas);
