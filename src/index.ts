@@ -89,7 +89,7 @@ window.onload = function() {
   }
 
   document.body.appendChild(titleText("Quantum state:"));
-  const quantumStateInput = new QuantumStateInput(document.body);
+  const quantumStateInput = new QuantumStateInput(document.body, (theta: number, phi: number) => bloch.setQuantumStateVector(theta, phi));
 
   document.body.appendChild(titleText("Enter a unitary matrix:"));
   const matrixInput = new MatrixInput(document.body, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
