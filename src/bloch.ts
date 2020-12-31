@@ -6,6 +6,8 @@ import {intersectionsToMap, IntersectionMap, makeArc, makeArrow, polarToCaertesi
 import { Object3D } from 'three';
 import {RotationAxis} from './rotationaxis';
 
+export type QuantumStateChangeCallback = (theta: number, phi: number) => void;
+
 const helperRadius = 0.6;
 
 function makeSphere(): THREE.Mesh {
@@ -33,7 +35,7 @@ function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
   return line;
 }
 
-export function makeBloch(canvas: HTMLCanvasElement) {
+export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback: QuantumStateChangeCallback) {
 
   const renderer = new THREE.WebGLRenderer({canvas});
   const cameraPos = new THREE.Vector3(0, 0, 2);
@@ -137,6 +139,7 @@ export function makeBloch(canvas: HTMLCanvasElement) {
 
     arrow.setDirection(point);
     rotationAxis.setArc(point);
+    quantumStateChangedCallback(theta, phi);
   }
 
   {

@@ -1,6 +1,7 @@
-import { makeBloch } from './bloch';
+import { makeBloch, QuantumStateChangeCallback } from './bloch';
 import { calculateOriantation, Matrix2x2 } from './eigen';
 import { MatrixInput } from './matrixinput';
+import { QuantumStateInput } from './quantumstateinput';
 
 // calculate mouse position in normalized device coordinates
 // (-1 to +1) for both components
@@ -12,10 +13,10 @@ function toNormalizedCoordinates(canvas: HTMLCanvasElement, event: MouseEvent): 
   ];
 }
 
-function main(canvas: HTMLCanvasElement) {
+function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChangeCallback) {
 
   let previousMousePosition = { x: 0, y: 0 };
-  const bloch = makeBloch(canvas);
+  const bloch = makeBloch(canvas, quantumStateChanged);
   bloch.setQuantumStateVector(3.14/4, 3.14/4);
 
   function onMouseDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
@@ -54,9 +55,9 @@ function main(canvas: HTMLCanvasElement) {
 
 window.onload = function() {
 
-  function titleText() {
+  function titleText(text: string) {
     const element = document.createElement('div');
-    element.innerHTML = "Enter a unitary matrix:";
+    element.innerHTML = text;
     return element;
   }
 
@@ -87,7 +88,10 @@ window.onload = function() {
     return element;
   }
 
-  document.body.appendChild(titleText());
+  document.body.appendChild(titleText("Quantum state:"));
+  const quantumStateInput = new QuantumStateInput(document.body);
+
+  document.body.appendChild(titleText("Enter a unitary matrix:"));
   const matrixInput = new MatrixInput(document.body, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
   const gateSelector = createGateSelector((option: string) => {
     const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
@@ -108,5 +112,5 @@ window.onload = function() {
   document.body.appendChild(gateSelector.element);
   let canvas = createCanvas();
   document.body.appendChild(canvas);
-  const bloch = main(canvas);
+  const bloch = main(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
 };
