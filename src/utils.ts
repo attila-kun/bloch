@@ -1,5 +1,5 @@
-import {ArrowHelper, BufferGeometry, EllipseCurve, Intersection, Line, LineBasicMaterial, Vector3} from 'three';
-import {cos, equal, sin} from 'mathjs';
+import {ArrowHelper, AxesHelper, BufferGeometry, ConeGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, Vector3} from 'three';
+import {acos, atan, atan2, cos, equal, pi, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
@@ -34,6 +34,55 @@ export function makeArrow(x: number, y: number, z: number, hex: number = 0xffff0
   const origin = new Vector3(0, 0, 0);
   const length = 1;
   return new ArrowHelper(dir, origin, length, hex);
+}
+
+const CONE_HEIGHT = 0.2;
+
+function makeInvisibleCone(x: number, y: number, z: number): Object3D {
+  const geometry = new ConeGeometry(0.1, CONE_HEIGHT, 16);
+  const material = new MeshBasicMaterial({ visible: false });
+  const coneContainer = new Object3D();
+  const cone = new Mesh(geometry, material);
+  coneContainer.add(cone);
+  return coneContainer;
+}
+
+// Arrow that has a larger, invisible region sorrounding its tip to make it easier for the user to click.
+class PaddedArrow {
+  private container: Object3D;
+  private visibleArrow: ArrowHelper;
+  private invisibleArrow: Object3D;
+
+  constructor(hex: number) {
+    this.container = new Object3D();
+    this.visibleArrow = makeArrow(1, 0, 0);
+    this.invisibleArrow = makeInvisibleCone(1, 0, 0);
+    this.invisibleArrow.rotateZ(-pi/2);
+    this.invisibleArrow.position.set(1-CONE_HEIGHT/2, 0, 0);
+    this.container.add(this.visibleArrow, this.invisibleArrow);
+  }
+
+  setDirection(dir: Vector3) {
+    dir = dir.clone().normalize();
+    const theta = acos(dir.z);
+    const phi = atan2(dir.y, dir.x);
+    this.container.rotation.set(0, 0, phi);
+    this.container.rotateY(theta-pi/2);
+  }
+
+  getDragZone() {
+    return this.invisibleArrow.children[0];
+  }
+
+  getContainer() {
+    return this.container;
+  }
+}
+
+export function makePaddedArrow(x: number, y: number, z: number, hex: number = 0xffff00): PaddedArrow {
+  const paddedArrow = new PaddedArrow(hex);
+  paddedArrow.setDirection(new Vector3(x, y, z));
+  return paddedArrow;
 }
 
 export function makeArc(radians: number, radius: number): THREE.Line {

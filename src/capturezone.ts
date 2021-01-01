@@ -44,9 +44,8 @@ export class DragCaptureZone extends CaptureZone
       return true;
 
     for (let uuid in this.uuids) {
-      if (intersects[uuid]) {
+      if (intersects[uuid])
         return true;
-      }
     }
     return false;
   }

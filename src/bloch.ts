@@ -2,7 +2,7 @@ import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
 import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
 import {acos, cos, pi, sin} from 'mathjs';
-import {intersectionsToMap, IntersectionMap, makeArc, makeArrow, polarToCaertesian} from './utils';
+import {intersectionsToMap, IntersectionMap, makeArc, makeArrow, makePaddedArrow, polarToCaertesian} from './utils';
 import { Object3D } from 'three';
 import {RotationAxis} from './rotationaxis';
 
@@ -89,8 +89,8 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   let phiLine: THREE.Line;
 
   let stateVector: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
-  const arrow = makeArrow(stateVector.x, stateVector.y, stateVector.z);
-  const dragZone = new DragCaptureZone([arrow.cone]);
+  const arrow = makePaddedArrow(stateVector.x, stateVector.y, stateVector.z);
+  const dragZone = new DragCaptureZone([arrow.getDragZone()]);
 
   function setStateVectorToPoint(point: THREE.Vector3) {
     stateVector = point;
@@ -155,7 +155,7 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
       }
     });
     captureZones.push(dragZone);
-    object.add(arrow);
+    object.add(arrow.getContainer());
   }
 
   const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
