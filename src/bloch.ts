@@ -1,4 +1,4 @@
-import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
+import {CaptureZone, DragCaptureZone, HoverCaptureZone, UserEvent} from './capturezone';
 import {AxisLabels, createText} from './axislabels';
 import * as THREE from 'three';
 import {acos, cos, pi, sin} from 'mathjs';
@@ -42,7 +42,6 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
   // TODO: move to separate manager
   const captureZones: CaptureZone[] = [];
-  let activeZone: CaptureZone = null;
   const events: UserEvent[] = [];
 
   const near = 0.1;
@@ -90,7 +89,35 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
   let stateVector: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
   const arrow = makePaddedArrow(stateVector.x, stateVector.y, stateVector.z);
+  object.add(arrow.getContainer());
   const dragZone = new DragCaptureZone([arrow.getDragZone()]);
+  const hoverZone = new HoverCaptureZone([arrow.getDragZone()]);
+
+  {
+    dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
+      const sphereIntersection = intersects[sphere.uuid];
+      if (sphereIntersection) { // mouse is over sphere
+        const point = sphere.worldToLocal(sphereIntersection.point);
+        point.normalize();
+        setStateVectorToPoint(point);
+      } else { // mouse is away from sphere
+        const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
+        setStateVectorToPoint(point);
+      }
+    });
+    captureZones.push(dragZone);
+
+    hoverZone.onHoverIn(() => arrow.setColor(0xff0000));
+    hoverZone.onHoverOut(() => arrow.setColor(0xffffff));
+    captureZones.push(hoverZone);
+  }
+
+  const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
+  dragCaptureZone.onDrag((event: UserEvent) => {
+    const sensitivity = 0.01;
+    rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
+  });
+  captureZones.push(dragCaptureZone);
 
   function setStateVectorToPoint(point: THREE.Vector3) {
     stateVector = point;
@@ -142,29 +169,6 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
     quantumStateChangedCallback(theta, phi);
   }
 
-  {
-    dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
-      const sphereIntersection = intersects[sphere.uuid];
-      if (sphereIntersection) { // mouse is over sphere
-        const point = sphere.worldToLocal(sphereIntersection.point);
-        point.normalize();
-        setStateVectorToPoint(point);
-      } else { // mouse is away from sphere
-        const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
-        setStateVectorToPoint(point);
-      }
-    });
-    captureZones.push(dragZone);
-    object.add(arrow.getContainer());
-  }
-
-  const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
-  dragCaptureZone.onDrag((event: UserEvent) => {
-    const sensitivity = 0.01;
-    rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
-  });
-  captureZones.push(dragCaptureZone);
-
   const axisLabels = new AxisLabels(object);
   axisLabels.layer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
   scene.add(axisLabels.layer);
@@ -189,19 +193,23 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
           const event = events.shift();
           raycaster.setFromCamera(event, camera);
-          let intersects: IntersectionMap = intersectionsToMap(raycaster.intersectObjects(scene.children, true));
+          const intersects: IntersectionMap = intersectionsToMap(raycaster.intersectObjects(scene.children, true));
+          const activeZone: CaptureZone = captureZones.find(zone => zone.isActive());
+          const captureZonesMinusActive: CaptureZone[] = captureZones.filter(zone => zone !== activeZone);
 
           if (activeZone) {
-            if (!activeZone.process(true, event, intersects)) {
-              activeZone = null;
-            }
-          } else {
-            for (let i = 0; i < captureZones.length; i++) {
-              const captureZone = captureZones[i];
-              if (captureZone.process(false, event, intersects)) {
-                activeZone = captureZone;
-                break;
-              }
+            activeZone.process(event, intersects);
+
+            if (activeZone.isActive())
+              continue;
+          }
+
+          for (let i = 0; i < captureZonesMinusActive.length; i++) {
+            const captureZone = captureZonesMinusActive[i];
+
+            captureZone.process(event, intersects)
+            if (captureZone.isActive()) {
+              break;
             }
           }
         }

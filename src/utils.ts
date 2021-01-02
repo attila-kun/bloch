@@ -77,6 +77,10 @@ class PaddedArrow {
   getContainer() {
     return this.container;
   }
+
+  setColor(hex: number) {
+    this.visibleArrow.setColor(hex);
+  }
 }
 
 export function makePaddedArrow(x: number, y: number, z: number, hex: number = 0xffff00): PaddedArrow {
