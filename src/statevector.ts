@@ -111,15 +111,19 @@ export class StateVector {
     });
 
     {
-      const offset = -0.1;
-      const x = cos(phi/2) * (projectedRadius + offset);
-      const y = sin(phi/2) * (projectedRadius + offset);
+      const radialOffset = -0.075;
+      const angularOffset = 0.1;
+      const x = cos(phi/2 + angularOffset) * (projectedRadius + radialOffset);
+      const y = sin(phi/2 + angularOffset) * (projectedRadius + radialOffset);
       this.phiLabel.position.set(x, y, 0);
       this.phiLabel.rotation.set(0, 0, pi/2+phi/2);
+      this.phiLabel.visible = projectedRadius**2 * phi / pi > 0.02; // only render if the sector drawn for the phi angle is large enough to accomodate for the label
     }
 
-    this.thetaLabel.position.set(...polarToCaertesian(theta/2+0.07, phi, 0.5));
-    this.thetaLabel.rotation.set(pi/2, phi, -theta/2);
+    const alignmentTheta = theta/2+0.09;
+    this.thetaLabel.position.set(...polarToCaertesian(alignmentTheta, phi, 0.5));
+    this.thetaLabel.rotation.set(pi/2, phi, -alignmentTheta);
+    this.thetaLabel.visible = theta > 0.2; // only render if there is enough spcae for the label to appear
 
     this.arrow.setDirection(point);
     return { theta, phi };
