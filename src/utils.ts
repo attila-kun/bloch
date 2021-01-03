@@ -48,7 +48,7 @@ function makeInvisibleCone(x: number, y: number, z: number): Object3D {
 }
 
 // Arrow that has a larger, invisible region sorrounding its tip to make it easier for the user to click.
-class PaddedArrow {
+export class PaddedArrow {
   private container: Object3D;
   private visibleArrow: ArrowHelper;
   private invisibleArrow: Object3D;

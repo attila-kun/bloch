@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 export const TEXT_SIZE = 0.15;
 
+// TODO: move to utils
 export function createText(text: string, renderOrder?: number): THREE.Mesh {
   //create image
   var bitmap = document.createElement('canvas');

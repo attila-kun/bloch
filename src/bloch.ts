@@ -1,14 +1,11 @@
-import {CaptureZone, DragCaptureZone, HoverCaptureZone, UserEvent} from './capturezone';
-import {AxisLabels, createText} from './axislabels';
+import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
+import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
-import {acos, cos, pi, sin} from 'mathjs';
-import {intersectionsToMap, IntersectionMap, makeArc, makeArrow, makePaddedArrow, polarToCaertesian} from './utils';
-import { Object3D } from 'three';
+import {intersectionsToMap, IntersectionMap, makeArrow, polarToCaertesian} from './utils';
 import {RotationAxis} from './rotationaxis';
+import {StateVector} from './statevector';
 
 export type QuantumStateChangeCallback = (theta: number, phi: number) => void;
-
-const helperRadius = 0.6;
 
 function makeSphere(): THREE.Mesh {
   const geometry = new THREE.SphereGeometry(1, 40, 40);
@@ -16,23 +13,6 @@ function makeSphere(): THREE.Mesh {
   material.transparent = true;
   material.opacity = 0.2;
   return new THREE.Mesh(geometry, material);
-}
-
-function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
-
-  const gap = 0.025;
-  const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), endPoint]);
-  const material = new THREE.LineDashedMaterial({
-    color: 0xffffff,
-    linewidth: 1,
-    scale: 1,
-    dashSize: gap,
-    gapSize: gap,
-  });
-
-  const line = new THREE.Line(geometry, material);
-  line.computeLineDistances();
-  return line;
 }
 
 export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback: QuantumStateChangeCallback) {
@@ -57,9 +37,6 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
   const scene = new THREE.Scene();
 
-  // const axesHelper = new THREE.AxesHelper(5);
-  // scene.add(axesHelper);
-
   // light
   {
     const color = 0xFFFFFF;
@@ -80,40 +57,28 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
   const rotationAxis = new RotationAxis(object);
 
-  const phiLabel = createText("Φ", -1);
-  object.add(phiLabel);
+  const _stateVector = new StateVector(object, captureZones);
 
-  const thetaLabel = createText("θ", -1);
-  object.add(thetaLabel);
+  _stateVector.onDrag((event: UserEvent, intersects: IntersectionMap) => {
+    const sphereIntersection = intersects[sphere.uuid];
+    if (sphereIntersection) { // mouse is over sphere
+      const point = sphere.worldToLocal(sphereIntersection.point);
+      point.normalize();
+      setStateVectorToPoint(point);
+    } else { // mouse is away from sphere
+      const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
+      setStateVectorToPoint(point);
+    }
+  });
 
-  let thetaArc: THREE.Line;
-  let phiArc: THREE.Line;
-  let phiLine: THREE.Line;
-
-  let stateVector: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
-  const arrow = makePaddedArrow(stateVector.x, stateVector.y, stateVector.z);
-  object.add(arrow.getContainer());
-  const dragZone = new DragCaptureZone([arrow.getDragZone()]);
-  const hoverZone = new HoverCaptureZone([arrow.getDragZone()]);
-
-  {
-    dragZone.onDrag((event: UserEvent, intersects: IntersectionMap) => {
-      const sphereIntersection = intersects[sphere.uuid];
-      if (sphereIntersection) { // mouse is over sphere
-        const point = sphere.worldToLocal(sphereIntersection.point);
-        point.normalize();
-        setStateVectorToPoint(point);
-      } else { // mouse is away from sphere
-        const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
-        setStateVectorToPoint(point);
-      }
-    });
-    captureZones.push(dragZone);
-
-    hoverZone.onHoverIn(() => arrow.setColor(0xff0000));
-    hoverZone.onHoverOut(() => arrow.setColor(0xffffff));
-    captureZones.push(hoverZone);
+  function setStateVectorToPoint(point: THREE.Vector3) {
+    const { theta, phi } = _stateVector.setStateVectorToPoint(point)
+    rotationAxis.setArc(point);
+    quantumStateChangedCallback(theta, phi);
   }
+
+  _stateVector.onHoverIn(() => _stateVector.setArrowColor(0xff0000));
+  _stateVector.onHoverOut(() => _stateVector.setArrowColor(0xffffff));
 
   const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
   dragCaptureZone.onDrag((event: UserEvent) => {
@@ -121,56 +86,6 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
     rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
   });
   captureZones.push(dragCaptureZone);
-
-  function setStateVectorToPoint(point: THREE.Vector3) {
-    stateVector = point;
-    const theta = acos(point.dot(new THREE.Vector3(0, 0, 1)));
-    let phi = acos((new THREE.Vector2(point.x, point.y).normalize()).dot(new THREE.Vector2(1, 0)));
-    if (point.dot(new THREE.Vector3(0, 1, 0)) < 0)
-      phi = pi * 2 - phi;
-
-    function removeCreateAdd<T extends Object3D>(o: T, createCallback: () => T): T {
-      if (o) {
-        object.remove(o);
-      }
-
-      const newObject = createCallback();
-      object.add(newObject);
-      return newObject;
-    }
-
-    thetaArc = removeCreateAdd(thetaArc, () => {
-      const arc = makeArc(theta, helperRadius);
-      arc.rotateY(-pi/2);
-      arc.rotateX(phi-pi/2);
-      return arc;
-    });
-
-    const projectedRadius = helperRadius * cos(Math.max(pi/2 - theta, 0));
-    phiArc = removeCreateAdd(phiArc, () => makeArc(phi, projectedRadius));
-
-    phiLine = removeCreateAdd(phiLine, () => {
-      const line = makaeDashedLine(new THREE.Vector3(projectedRadius, 0, 0));
-      line.rotateZ(phi);
-      object.add(line);
-      return line;
-    });
-
-    {
-      const offset = -0.1;
-      const x = cos(phi/2) * (projectedRadius + offset);
-      const y = sin(phi/2) * (projectedRadius + offset);
-      phiLabel.position.set(x, y, 0);
-      phiLabel.rotation.set(0, 0, pi/2+phi/2);
-    }
-
-    thetaLabel.position.set(...polarToCaertesian(theta/2+0.07, phi, 0.5));
-    thetaLabel.rotation.set(pi/2, phi, -theta/2);
-
-    arrow.setDirection(point);
-    rotationAxis.setArc(point);
-    quantumStateChangedCallback(theta, phi);
-  }
 
   const axisLabels = new AxisLabels(object);
   axisLabels.layer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
@@ -227,7 +142,7 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
     setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
       rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
-      rotationAxis.setArc(stateVector);
+      rotationAxis.setArc(_stateVector.getStateVector());
     },
 
     onMouseDown(x: number, y: number) {
