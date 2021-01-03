@@ -81,6 +81,26 @@ window.onload = function() {
     };
   }
 
+  function createSaveImageButton(getDataURLCallback: () => string) {
+    const container = document.createElement('div');
+
+    const button = document.createElement('button');
+    button.textContent = 'Save image';
+    container.appendChild(button);
+
+    const link = document.createElement('a');
+    container.appendChild(link);
+
+    // TODO: clenaup
+    button.addEventListener('click', () => {
+      link.setAttribute('download', 'bloch.png');
+      link.setAttribute('href', getDataURLCallback());
+      link.click();
+    });
+
+    return container;
+  }
+
   function createCanvas() {
     const element = document.createElement('canvas');
     element.width = 1000;
@@ -110,6 +130,11 @@ window.onload = function() {
   };
 
   document.body.appendChild(gateSelector.element);
+
+  document.body.appendChild(createSaveImageButton(() =>
+    canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+  ));
+
   let canvas = createCanvas();
   document.body.appendChild(canvas);
   const bloch = main(canvas, (theta, phi) => quantumStateInput.update(theta, phi));

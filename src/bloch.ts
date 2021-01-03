@@ -37,7 +37,10 @@ function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
 
 export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback: QuantumStateChangeCallback) {
 
-  const renderer = new THREE.WebGLRenderer({canvas});
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    preserveDrawingBuffer: true // needed for saving the image into file
+  });
   const cameraPos = new THREE.Vector3(0, 0, 2);
 
   // TODO: move to separate manager
