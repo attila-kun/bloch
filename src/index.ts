@@ -19,11 +19,11 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
   const bloch = makeBloch(canvas, quantumStateChanged);
   bloch.setQuantumStateVector(3.14/4, 3.14/4);
 
-  function onMouseDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
+  function onPointerDown(event: MouseEvent) { bloch.onMouseDown(...toNormalizedCoordinates(canvas, event)); }
 
-  function onMouseUp(event: MouseEvent) { bloch.onMouseUp(...toNormalizedCoordinates(canvas, event)); }
+  function onPointerUp(event: MouseEvent) { bloch.onMouseUp(...toNormalizedCoordinates(canvas, event)); }
 
-  function onMouseMove(event: MouseEvent) {
+  function onPointerMove(event: MouseEvent) {
 
     let deltaMove = {
       x: event.offsetX-previousMousePosition.x,
@@ -46,9 +46,9 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
   requestAnimationFrame(render);
 
   // TODO: cleanup
-  canvas.addEventListener('mousedown', onMouseDown, false);
-  window.addEventListener('mouseup', onMouseUp, false);
-  window.addEventListener('mousemove', onMouseMove, false);
+  canvas.addEventListener('pointerdown', onPointerDown, false);
+  window.addEventListener('pointerup', onPointerUp, false);
+  window.addEventListener('pointermove', onPointerMove, false);
 
   return bloch;
 }
@@ -105,6 +105,7 @@ window.onload = function() {
     const element = document.createElement('canvas');
     element.width = 1000;
     element.height = 500;
+    element.style.setProperty('touch-action', 'none');
     return element;
   }
 
