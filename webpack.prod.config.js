@@ -3,11 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: {
-    index: './src/index.ts'
+    lib: './src/lib.ts'
   },
-  devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist'
   },
@@ -21,12 +20,16 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      template: 'src/index.html'
-    }),
+    new CleanWebpackPlugin()
   ],
   resolve: {
     extensions: ['.ts', '.js' ],
-  }
+  },
+  output: {
+    library: 'bloch',
+    libraryTarget: 'umd',
+    filename: '[name].js',
+    globalObject: 'this',
+    path: path.resolve(__dirname, 'dist')
+  },
 };
