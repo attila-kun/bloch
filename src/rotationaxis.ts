@@ -8,26 +8,32 @@ export class RotationAxis
   private arc: Line;
   private direction: Vector3;
   private dot: Points;
-  private parent: Object3D;
+  private container: Object3D;
   private arrowHelper0: ArrowHelper;
   private arrowHelper1: ArrowHelper;
   private rotationAngle: number;
 
-  constructor(p: Object3D) {
-    this.parent = p;
+  constructor() {
+    this.container = new Object3D();
     this.arrowHelper0 = makeArrow(1, 0, 0, 0xff0000);
-    this.parent.add(this.arrowHelper0);
-    this.arrowHelper1 = makeArrow(1, 0, 0, 0xff0000);
-    this.parent.add(this.arrowHelper1);
+    this.container.add(this.arrowHelper0);
+    this.arrowHelper1 = makeArrow(-1, 0, 0, 0xff0000);
+    this.container.add(this.arrowHelper1);
 
     const dotGeometry = new Geometry();
     dotGeometry.vertices.push(new Vector3(0, 0, 0));
     const dotMaterial = new PointsMaterial( { size: 10, sizeAttenuation: false } );
     this.dot = new Points( dotGeometry, dotMaterial );
-    this.parent.add(this.dot);
+    this.container.add(this.dot);
+    this.container.visible = false;
+  }
+
+  getContainer(): Object3D {
+    return this.container;
   }
 
   setDirection(dir: Vector3, angle: number) {
+    this.container.visible = true;
     this.direction = dir;
     this.arrowHelper0.setDirection(this.direction);
     this.arrowHelper1.setDirection(this.direction.clone().multiplyScalar(-1));
@@ -44,17 +50,17 @@ export class RotationAxis
     this.dot.position.set(...closestPointOnLineCoords);
 
     if (this.arc)
-      this.parent.remove(this.arc);
+      this.container.remove(this.arc);
 
     const distance = quantumStatePoint.clone().sub(closestPointOnLine).length();
     this.arc = makeArc(this.rotationAngle, distance);
-    this.parent.add(this.arc);
+    this.container.add(this.arc);
 
     this.arc.position.set(...closestPointOnLineCoords);
-    this.arc.lookAt(this.arc.worldToLocal(this.parent.localToWorld(this.direction.clone())));
+    this.arc.lookAt(this.arc.worldToLocal(this.container.localToWorld(this.direction.clone())));
     this.arc.updateWorldMatrix(true, true);
 
-    const localQuantumStatePoint = this.arc.worldToLocal(this.parent.localToWorld(quantumStatePoint.clone()));
+    const localQuantumStatePoint = this.arc.worldToLocal(this.container.localToWorld(quantumStatePoint.clone()));
     const projectedQuantumStatePoint = new Vector2(localQuantumStatePoint.x, localQuantumStatePoint.y).normalize();
     const angle = complex(projectedQuantumStatePoint.x, projectedQuantumStatePoint.y).toPolar().phi;
     this.arc.rotateZ(angle);

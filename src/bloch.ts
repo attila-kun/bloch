@@ -55,7 +55,8 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   object.add(makeArrow(0, 1, 0));
   object.add(makeArrow(0, 0, 1));
 
-  const rotationAxis = new RotationAxis(object);
+  const rotationAxis = new RotationAxis();
+  object.add(rotationAxis.getContainer());
 
   const _stateVector = new StateVector(object, captureZones);
 

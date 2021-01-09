@@ -17,7 +17,7 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
 
   let previousMousePosition = { x: 0, y: 0 };
   const bloch = makeBloch(canvas, quantumStateChanged);
-  bloch.setQuantumStateVector(3.14/4, 3.14/4);
+  bloch.setQuantumStateVector(3.14/4, 3.14/2);
 
   function onPointerDown(event: MouseEvent) {
     previousMousePosition = { x: event.offsetX, y: event.offsetY };
