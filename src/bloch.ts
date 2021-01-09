@@ -1,7 +1,7 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
 import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
-import {intersectionsToMap, IntersectionMap, makeArrow, polarToCaertesian} from './utils';
+import {intersectionsToMap, IntersectionMap, createArrow, polarToCaertesian} from './utils';
 import {RotationAxis} from './rotationaxis';
 import {StateVector} from './statevector';
 
@@ -51,9 +51,9 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   object.rotateZ(-(Math.PI/2 + Math.PI/4));
   const sphere = makeSphere();
   object.add(sphere);
-  object.add(makeArrow(1, 0, 0));
-  object.add(makeArrow(0, 1, 0));
-  object.add(makeArrow(0, 0, 1));
+  object.add(createArrow(1, 0, 0));
+  object.add(createArrow(0, 1, 0));
+  object.add(createArrow(0, 0, 1));
 
   const rotationAxis = new RotationAxis();
   object.add(rotationAxis.getContainer());

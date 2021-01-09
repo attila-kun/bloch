@@ -1,4 +1,4 @@
-import {makeArc, makeArrow} from './utils';
+import {createArc, createArrow} from './utils';
 import {ArrowHelper, ConeGeometry, Geometry, Mesh, MeshBasicMaterial, Object3D, PointsMaterial, Points, Vector3, Line, Vector2} from 'three';
 import {complex} from 'mathjs';
 
@@ -15,9 +15,9 @@ export class RotationAxis
 
   constructor() {
     this.container = new Object3D();
-    this.arrowHelper0 = makeArrow(1, 0, 0, 0xff0000);
+    this.arrowHelper0 = createArrow(1, 0, 0, 0xff0000);
     this.container.add(this.arrowHelper0);
-    this.arrowHelper1 = makeArrow(-1, 0, 0, 0xff0000);
+    this.arrowHelper1 = createArrow(-1, 0, 0, 0xff0000);
     this.container.add(this.arrowHelper1);
 
     const dotGeometry = new Geometry();
@@ -53,7 +53,7 @@ export class RotationAxis
       this.container.remove(this.arc);
 
     const distance = quantumStatePoint.clone().sub(closestPointOnLine).length();
-    this.arc = makeArc(this.rotationAngle, distance);
+    this.arc = createArc(this.rotationAngle, distance);
     this.container.add(this.arc);
 
     this.arc.position.set(...closestPointOnLineCoords);

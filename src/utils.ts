@@ -28,7 +28,7 @@ export function polarToCaertesian(theta: number, phi: number, r: number = 1): [n
   return [x, y, z];
 }
 
-export function makeArrow(x: number, y: number, z: number, hex: number = 0xffff00): ArrowHelper {
+export function createArrow(x: number, y: number, z: number, hex: number = 0xffff00): ArrowHelper {
   const dir = new Vector3(x, y, z);
   dir.normalize();
   const origin = new Vector3(0, 0, 0);
@@ -38,7 +38,7 @@ export function makeArrow(x: number, y: number, z: number, hex: number = 0xffff0
 
 const CONE_HEIGHT = 0.2;
 
-function makeInvisibleCone(x: number, y: number, z: number): Object3D {
+function createInvisibleCone(x: number, y: number, z: number): Object3D {
   const geometry = new ConeGeometry(0.1, CONE_HEIGHT, 16);
   const material = new MeshBasicMaterial({ visible: false });
   const coneContainer = new Object3D();
@@ -55,8 +55,8 @@ export class PaddedArrow {
 
   constructor(hex: number) {
     this.container = new Object3D();
-    this.visibleArrow = makeArrow(1, 0, 0);
-    this.invisibleArrow = makeInvisibleCone(1, 0, 0);
+    this.visibleArrow = createArrow(1, 0, 0);
+    this.invisibleArrow = createInvisibleCone(1, 0, 0);
     this.invisibleArrow.rotateZ(-pi/2);
     this.invisibleArrow.position.set(1-CONE_HEIGHT/2, 0, 0);
     this.container.add(this.visibleArrow, this.invisibleArrow);
@@ -83,13 +83,13 @@ export class PaddedArrow {
   }
 }
 
-export function makePaddedArrow(x: number, y: number, z: number, hex: number = 0xffff00): PaddedArrow {
+export function createPaddedArrow(x: number, y: number, z: number, hex: number = 0xffff00): PaddedArrow {
   const paddedArrow = new PaddedArrow(hex);
   paddedArrow.setDirection(new Vector3(x, y, z));
   return paddedArrow;
 }
 
-export function makeArc(radians: number, radius: number): THREE.Line {
+export function createArc(radians: number, radius: number): Line {
   const curve = new EllipseCurve(
     0,  0,            // ax, aY
     radius, radius,   // xRadius, yRadius
@@ -104,7 +104,7 @@ export function makeArc(radians: number, radius: number): THREE.Line {
   return new Line(geometry, material);
 }
 
-export function createText(text: string, renderOrder?: number): THREE.Mesh {
+export function createText(text: string, renderOrder?: number): Mesh {
   //create image
   var bitmap = document.createElement('canvas');
   var g = bitmap.getContext('2d');
