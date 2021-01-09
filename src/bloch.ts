@@ -29,7 +29,7 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
 
   const near = 0.1;
   const far = 5;
-  const xExtent = 3;
+  const xExtent = 1.5;
   const yExtent = 1.5;
   const aspectRatio = xExtent / yExtent;
   const camera = new THREE.OrthographicCamera(-xExtent, xExtent, yExtent, -yExtent, near, far);

@@ -106,7 +106,7 @@ export function init() {
 
   function createCanvas() {
     const element = document.createElement('canvas');
-    element.width = 1000;
+    element.width = 500;
     element.height = 500;
     element.style.setProperty('touch-action', 'none');
     return element;
