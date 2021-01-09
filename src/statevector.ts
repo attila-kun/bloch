@@ -1,6 +1,6 @@
 import { acos, cos, pi, sin } from "mathjs";
 import { BufferGeometry, Line, LineDashedMaterial, Mesh, Object3D, Vector2, Vector3 } from "three";
-import { createText } from "./axislabels";
+import { createText } from "./utils";
 import { CaptureZone, DragCaptureZone, HoverCaptureZone, UserEvent } from "./capturezone";
 import { IntersectionMap, makeArc, makePaddedArrow, PaddedArrow, polarToCaertesian } from "./utils";
 

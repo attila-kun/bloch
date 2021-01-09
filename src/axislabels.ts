@@ -1,33 +1,5 @@
 import * as THREE from 'three';
-
-export const TEXT_SIZE = 0.15;
-
-// TODO: move to utils
-export function createText(text: string, renderOrder?: number): THREE.Mesh {
-  //create image
-  var bitmap = document.createElement('canvas');
-  var g = bitmap.getContext('2d');
-  bitmap.width = 60;
-  bitmap.height = 60;
-  g.font = 'Bold 40px Arial';
-
-  g.fillStyle = 'white';
-  g.fillText(text, 0, 40);
-  g.strokeStyle = 'black';
-  g.strokeText(text, 0, 40);
-
-  // canvas contents will be used for a texture
-  var texture = new THREE.Texture(bitmap)
-  texture.needsUpdate = true;
-
-  const textSize = TEXT_SIZE;
-  const geometry = new THREE.PlaneGeometry(textSize, textSize, 1);
-  const material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, transparent: true});
-  const plane = new THREE.Mesh(geometry, material);
-  plane.renderOrder = renderOrder ?? 0;
-  material.map = texture;
-  return plane;
-}
+import { createText } from './utils';
 
 export class AxisLabels {
 

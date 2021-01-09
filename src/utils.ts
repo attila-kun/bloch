@@ -1,5 +1,5 @@
-import {ArrowHelper, AxesHelper, BufferGeometry, ConeGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, Vector3} from 'three';
-import {acos, atan, atan2, cos, equal, pi, sin} from 'mathjs';
+import {ArrowHelper, BufferGeometry, ConeGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Texture, Vector3} from 'three';
+import {acos, atan2, cos, equal, pi, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
@@ -102,4 +102,30 @@ export function makeArc(radians: number, radius: number): THREE.Line {
   const geometry = new BufferGeometry().setFromPoints(points);
   const material = new LineBasicMaterial({ color : 0xffffff });
   return new Line(geometry, material);
+}
+
+export function createText(text: string, renderOrder?: number): THREE.Mesh {
+  //create image
+  var bitmap = document.createElement('canvas');
+  var g = bitmap.getContext('2d');
+  bitmap.width = 60;
+  bitmap.height = 60;
+  g.font = 'Bold 40px Arial';
+
+  g.fillStyle = 'white';
+  g.fillText(text, 0, 40);
+  g.strokeStyle = 'black';
+  g.strokeText(text, 0, 40);
+
+  // canvas contents will be used for a texture
+  var texture = new Texture(bitmap)
+  texture.needsUpdate = true;
+
+  const TEXT_SIZE = 0.15;
+  const geometry = new PlaneGeometry(TEXT_SIZE, TEXT_SIZE, 1);
+  const material = new MeshBasicMaterial({color: 0xffffff, side: DoubleSide, transparent: true});
+  const plane = new Mesh(geometry, material);
+  plane.renderOrder = renderOrder ?? 0;
+  material.map = texture;
+  return plane;
 }
