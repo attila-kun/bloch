@@ -67,7 +67,10 @@ export function makeBloch(
   const _stateVector = new StateVector(textLayer, captureZones);
   object.add(_stateVector.getContainer());
 
+  _stateVector.setTextVisibility(window.localStorage.getItem('bloch-showDragMe') !== 'false');
+
   _stateVector.onDrag((event: UserEvent, intersects: IntersectionMap) => {
+    window.localStorage.setItem('bloch-showDragMe', 'false');
     const sphereIntersection = intersects[sphere.uuid];
     if (sphereIntersection) { // mouse is over sphere
       const point = sphere.worldToLocal(sphereIntersection.point);
