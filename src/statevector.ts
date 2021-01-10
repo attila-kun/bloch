@@ -1,8 +1,8 @@
-import { acos, cos, pi, sin } from "mathjs";
-import { BufferGeometry, Line, LineDashedMaterial, Mesh, Object3D, Vector2, Vector3 } from "three";
-import { createText } from "./utils";
 import { CaptureZone, DragCaptureZone, HoverCaptureZone, UserEvent } from "./capturezone";
-import { IntersectionMap, createArc, createPaddedArrow, PaddedArrow, polarToCaertesian } from "./utils";
+import { acos, cos, pi, sin } from "mathjs";
+import { createPaddedArrow, PaddedArrow } from "./paddedarrow";
+import { BufferGeometry, Line, LineDashedMaterial, Mesh, Object3D, Vector2, Vector3 } from "three";
+import { createText, IntersectionMap, createArc, polarToCaertesian } from "./utils";
 
 type OnDragCallback = any;
 type OnHoverInCallback = any;
