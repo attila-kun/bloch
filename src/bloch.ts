@@ -15,7 +15,12 @@ function makeSphere(): THREE.Mesh {
   return new THREE.Mesh(geometry, material);
 }
 
-export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback: QuantumStateChangeCallback) {
+export function makeBloch(
+  canvas: HTMLCanvasElement,
+  quantumStateChangedCallback: QuantumStateChangeCallback
+  ) {
+
+  setCursor(false);
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -81,8 +86,8 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
     quantumStateChangedCallback(theta, phi);
   }
 
-  _stateVector.onHoverIn(() => _stateVector.setArrowColor(0xff0000));
-  _stateVector.onHoverOut(() => _stateVector.setArrowColor(0xffffff));
+  _stateVector.onHoverIn(setCursor.bind(null, true));
+  _stateVector.onHoverOut(setCursor.bind(null, false));
 
   const dragCaptureZone = new DragCaptureZone([{uuid: 'background'}]);
   dragCaptureZone.onDrag((event: UserEvent) => {
@@ -104,6 +109,10 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
     object.rotation.x += x;
     object.rotation.y += y;
     object.rotation.z += z;
+  }
+
+  function setCursor(state: boolean) {
+    canvas.style.cursor = state ? 'grab' : 'all-scroll';
   }
 
   return {

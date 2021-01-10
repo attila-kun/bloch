@@ -36,7 +36,7 @@ export function createArrow(x: number, y: number, z: number, hex: number = 0xfff
   return new ArrowHelper(dir, origin, length, hex);
 }
 
-const CONE_HEIGHT = 0.2;
+const CONE_HEIGHT = 0.4;
 
 function createInvisibleCone(x: number, y: number, z: number): Object3D {
   const geometry = new ConeGeometry(0.1, CONE_HEIGHT, 16);
@@ -51,15 +51,15 @@ function createInvisibleCone(x: number, y: number, z: number): Object3D {
 export class PaddedArrow {
   private container: Object3D;
   private visibleArrow: ArrowHelper;
-  private invisibleArrow: Object3D;
+  private invisibleCone: Object3D;
 
-  constructor(hex: number) {
+  constructor() {
     this.container = new Object3D();
     this.visibleArrow = createArrow(1, 0, 0);
-    this.invisibleArrow = createInvisibleCone(1, 0, 0);
-    this.invisibleArrow.rotateZ(-pi/2);
-    this.invisibleArrow.position.set(1-CONE_HEIGHT/2, 0, 0);
-    this.container.add(this.visibleArrow, this.invisibleArrow);
+    this.invisibleCone = createInvisibleCone(1, 0, 0);
+    this.invisibleCone.rotateZ(-pi/2);
+    this.invisibleCone.position.set(1-CONE_HEIGHT/2, 0, 0);
+    this.container.add(this.visibleArrow, this.invisibleCone);
   }
 
   setDirection(dir: Vector3) {
@@ -71,7 +71,7 @@ export class PaddedArrow {
   }
 
   getDragZone() {
-    return this.invisibleArrow.children[0];
+    return this.invisibleCone.children[0];
   }
 
   getContainer() {
@@ -83,8 +83,8 @@ export class PaddedArrow {
   }
 }
 
-export function createPaddedArrow(x: number, y: number, z: number, hex: number = 0xffff00): PaddedArrow {
-  const paddedArrow = new PaddedArrow(hex);
+export function createPaddedArrow(x: number, y: number, z: number): PaddedArrow {
+  const paddedArrow = new PaddedArrow();
   paddedArrow.setDirection(new Vector3(x, y, z));
   return paddedArrow;
 }
