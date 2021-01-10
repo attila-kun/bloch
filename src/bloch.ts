@@ -1,19 +1,11 @@
 import {CaptureZone, DragCaptureZone, UserEvent} from './capturezone';
 import {AxisLabels} from './axislabels';
 import * as THREE from 'three';
-import {intersectionsToMap, IntersectionMap, createArrow, polarToCaertesian} from './utils';
+import {createSphere, intersectionsToMap, IntersectionMap, createArrow, polarToCaertesian} from './utils';
 import {RotationAxis} from './rotationaxis';
 import {StateVector} from './statevector';
 
 export type QuantumStateChangeCallback = (theta: number, phi: number) => void;
-
-function makeSphere(): THREE.Mesh {
-  const geometry = new THREE.SphereGeometry(1, 40, 40);
-  const material = new THREE.MeshPhongMaterial( {color: 0x44aa88} );
-  material.transparent = true;
-  material.opacity = 0.2;
-  return new THREE.Mesh(geometry, material);
-}
 
 export function makeBloch(
   canvas: HTMLCanvasElement,
@@ -55,7 +47,7 @@ export function makeBloch(
   const textLayer = new THREE.Object3D();
   object.rotateX(-Math.PI/4);
   object.rotateZ(-(Math.PI/2 + Math.PI/4));
-  const sphere = makeSphere();
+  const sphere = createSphere();
   object.add(sphere);
   object.add(createArrow(1, 0, 0));
   object.add(createArrow(0, 1, 0));

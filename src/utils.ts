@@ -1,4 +1,4 @@
-import {ArrowHelper, BufferGeometry, ConeGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Texture, Vector3} from 'three';
+import {ArrowHelper, BufferGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, PlaneGeometry, SphereGeometry, Texture, Vector3} from 'three';
 import {acos, atan2, cos, equal, pi, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
@@ -36,10 +36,18 @@ export function createArrow(x: number, y: number, z: number, hex: number = 0xfff
   return new ArrowHelper(dir, origin, length, hex);
 }
 
-const CONE_HEIGHT = 0.4;
+export function createSphere(): Mesh {
+  const geometry = new SphereGeometry(1, 40, 40);
+  const material = new MeshPhongMaterial( {color: 0x44aa88} );
+  material.transparent = true;
+  material.opacity = 0.2;
+  return new Mesh(geometry, material);
+}
+
+const SPHERE_RADIUS = 0.2;
 
 function createInvisibleCone(x: number, y: number, z: number): Object3D {
-  const geometry = new ConeGeometry(0.1, CONE_HEIGHT, 16);
+  const geometry = new SphereGeometry(SPHERE_RADIUS, 10, 10);
   const material = new MeshBasicMaterial({ visible: false });
   const coneContainer = new Object3D();
   const cone = new Mesh(geometry, material);
@@ -58,7 +66,7 @@ export class PaddedArrow {
     this.visibleArrow = createArrow(1, 0, 0);
     this.invisibleCone = createInvisibleCone(1, 0, 0);
     this.invisibleCone.rotateZ(-pi/2);
-    this.invisibleCone.position.set(1-CONE_HEIGHT/2, 0, 0);
+    this.invisibleCone.position.set(1-SPHERE_RADIUS/2, 0, 0);
     this.container.add(this.visibleArrow, this.invisibleCone);
   }
 
