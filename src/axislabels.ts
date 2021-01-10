@@ -10,21 +10,18 @@ export class AxisLabels {
   private basis0Label: THREE.Mesh;
   private basis1Label: THREE.Mesh;
 
-  public layer: THREE.Object3D;
-
-  constructor(parent: THREE.Object3D) {
+  constructor(parent: THREE.Object3D, textLayer: THREE.Object3D) {
     this.parent = parent;
-    this.layer = new THREE.Object3D();
     this.xLabel = createText('x');
     this.yLabel = createText('y');
     this.zLabel = createText('z');
     this.basis0Label = createText('|0>');
     this.basis1Label = createText('|1>');
-    this.layer.add(this.xLabel);
-    this.layer.add(this.yLabel);
-    this.layer.add(this.zLabel);
-    this.layer.add(this.basis0Label);
-    this.layer.add(this.basis1Label);
+    textLayer.add(this.xLabel);
+    textLayer.add(this.yLabel);
+    textLayer.add(this.zLabel);
+    textLayer.add(this.basis0Label);
+    textLayer.add(this.basis1Label);
   }
 
   align() {

@@ -47,6 +47,7 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   }
 
   const object = new THREE.Object3D();
+  const textLayer = new THREE.Object3D();
   object.rotateX(-Math.PI/4);
   object.rotateZ(-(Math.PI/2 + Math.PI/4));
   const sphere = makeSphere();
@@ -58,7 +59,8 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   const rotationAxis = new RotationAxis();
   object.add(rotationAxis.getContainer());
 
-  const _stateVector = new StateVector(object, captureZones);
+  const _stateVector = new StateVector(textLayer, captureZones);
+  object.add(_stateVector.getContainer());
 
   _stateVector.onDrag((event: UserEvent, intersects: IntersectionMap) => {
     const sphereIntersection = intersects[sphere.uuid];
@@ -85,12 +87,13 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
   dragCaptureZone.onDrag((event: UserEvent) => {
     const sensitivity = 0.01;
     rotate(event.deltaY * sensitivity, 0, event.deltaX * sensitivity);
+    _stateVector.updateText();
   });
   captureZones.push(dragCaptureZone);
 
-  const axisLabels = new AxisLabels(object);
-  axisLabels.layer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
-  scene.add(axisLabels.layer);
+  const axisLabels = new AxisLabels(object, textLayer);
+  textLayer.position.set(0, 0, 1); // the plane should be between the camera and the sphere
+  scene.add(textLayer);
   scene.add(object);
   object.updateWorldMatrix(true, true);
 

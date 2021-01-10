@@ -28,7 +28,7 @@ function makaeDashedLine(endPoint: THREE.Vector3): THREE.Line {
 }
 
 export class StateVector {
-  private parent: Object3D; // TODO: use separate container instead
+  private container: Object3D;
   private _stateVector: Vector3;
   private arrow: PaddedArrow;
   private phiLabel: Mesh;
@@ -36,22 +36,23 @@ export class StateVector {
   private thetaArc: Line;
   private phiArc: Line;
   private phiLine: Line;
+  private dragMe: Mesh;
   private onDragCallback: OnDragCallback;
   private onHoverInCallback: OnHoverInCallback;
   private onHoverOutCallback: OnHoverOutCallback;
 
-  constructor(p: Object3D, captureZones: CaptureZone[]) {
-    this.parent = p;
+  constructor(textLayer: Object3D, captureZones: CaptureZone[]) {
+    this.container = new Object3D();
 
-    this.phiLabel = createText("Φ", -1);
-    this.parent.add(this.phiLabel);
+    this.phiLabel = createText("Φ", { renderOrder: -1});
+    this.container.add(this.phiLabel);
 
-    this.thetaLabel = createText("θ", -1);
-    this.parent.add(this.thetaLabel);
+    this.thetaLabel = createText("θ", { renderOrder: -1});
+    this.container.add(this.thetaLabel);
 
     this._stateVector = new Vector3(0, 0, 1);
     this.arrow = createPaddedArrow(this._stateVector.x, this._stateVector.y, this._stateVector.z);
-    this.parent.add(this.arrow.getContainer());
+    this.container.add(this.arrow.getContainer());
 
     const dragZone = new DragCaptureZone([this.arrow.getDragZone()]);
     const hoverZone = new HoverCaptureZone([this.arrow.getDragZone()]);
@@ -62,6 +63,13 @@ export class StateVector {
     hoverZone.onHoverIn(() => this.onHoverInCallback());
     hoverZone.onHoverOut(() => this.onHoverOutCallback());
     captureZones.push(hoverZone);
+
+    this.dragMe = createText("drag me", { width: 0.5});
+    textLayer.add(this.dragMe);
+  }
+
+  getContainer() {
+    return this.container;
   }
 
   getStateVector() {
@@ -85,11 +93,11 @@ export class StateVector {
 
     const removeCreateAdd = <T extends Object3D>(o: T, createCallback: () => T): T => {
       if (o) {
-        this.parent.remove(o);
+        this.container.remove(o);
       }
 
       const newObject = createCallback();
-      this.parent.add(newObject);
+      this.container.add(newObject);
       return newObject;
     };
 
@@ -106,7 +114,7 @@ export class StateVector {
     this.phiLine = removeCreateAdd(this.phiLine, () => {
       const line = makaeDashedLine(new Vector3(projectedRadius, 0, 0));
       line.rotateZ(phi);
-      this.parent.add(line);
+      this.container.add(line);
       return line;
     });
 
@@ -126,6 +134,13 @@ export class StateVector {
     this.thetaLabel.visible = theta > 0.2; // only render if there is enough spcae for the label to appear
 
     this.arrow.setDirection(point);
+    this.updateText();
+
     return { theta, phi };
+  }
+
+  updateText() {
+    const worldPoint = this.container.localToWorld(this._stateVector.clone().multiplyScalar(1.3));
+    this.dragMe.position.set(worldPoint.x, worldPoint.y, 0);
   }
 }

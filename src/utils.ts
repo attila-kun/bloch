@@ -104,12 +104,24 @@ export function createArc(radians: number, radius: number): Line {
   return new Line(geometry, material);
 }
 
-export function createText(text: string, renderOrder?: number): Mesh {
+export function createText(
+  text: string,
+  options: {
+    renderOrder?: number,
+    width?: number,
+    height?: number
+  } = {}
+): Mesh {
+
+  const TEXT_SIZE = 0.15;
+  options.width = options.width ?? TEXT_SIZE;
+  options.height = options.height ?? TEXT_SIZE;
+
   //create image
-  var bitmap = document.createElement('canvas');
-  var g = bitmap.getContext('2d');
-  bitmap.width = 60;
-  bitmap.height = 60;
+  const bitmap = document.createElement('canvas');
+  const g = bitmap.getContext('2d');
+  bitmap.width = 60 * options.width / TEXT_SIZE;;
+  bitmap.height = 60 * options.height / TEXT_SIZE;
   g.font = 'Bold 40px Arial';
 
   g.fillStyle = 'white';
@@ -118,14 +130,13 @@ export function createText(text: string, renderOrder?: number): Mesh {
   g.strokeText(text, 0, 40);
 
   // canvas contents will be used for a texture
-  var texture = new Texture(bitmap)
+  const texture = new Texture(bitmap)
   texture.needsUpdate = true;
 
-  const TEXT_SIZE = 0.15;
-  const geometry = new PlaneGeometry(TEXT_SIZE, TEXT_SIZE, 1);
+  const geometry = new PlaneGeometry(options.width, options.height, 1);
   const material = new MeshBasicMaterial({color: 0xffffff, side: DoubleSide, transparent: true});
   const plane = new Mesh(geometry, material);
-  plane.renderOrder = renderOrder ?? 0;
+  plane.renderOrder = options.renderOrder ?? 0;
   material.map = texture;
   return plane;
 }
