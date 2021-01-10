@@ -76,6 +76,10 @@ export class StateVector {
     return this._stateVector.clone();
   }
 
+  setTextVisibility(visible: boolean) {
+    this.dragMe.visible = visible;
+  }
+
   onDrag(callback: OnDragCallback) { this.onDragCallback = callback; }
   onHoverIn(callback: OnHoverInCallback) { this.onHoverInCallback = callback; }
   onHoverOut(callback: OnHoverOutCallback) { this.onHoverOutCallback = callback; }

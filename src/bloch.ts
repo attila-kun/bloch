@@ -72,6 +72,7 @@ export function makeBloch(canvas: HTMLCanvasElement, quantumStateChangedCallback
       const point = object.worldToLocal(new THREE.Vector3(event.x, event.y/aspectRatio, 0)).normalize();
       setStateVectorToPoint(point);
     }
+    _stateVector.setTextVisibility(false);
   });
 
   function setStateVectorToPoint(point: THREE.Vector3) {
