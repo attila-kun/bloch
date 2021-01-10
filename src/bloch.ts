@@ -149,9 +149,14 @@ export function makeBloch(
       setStateVectorToPoint(new THREE.Vector3(...polarToCaertesian(theta, phi)));
     },
 
+    hideRotationAxis() {
+      rotationAxis.setVisibility(false);
+    },
+
     setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
       rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
       rotationAxis.setArc(_stateVector.getStateVector());
+      rotationAxis.setVisibility(true);
     },
 
     onMouseDown(x: number, y: number) {

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "lib": ["DOM", "ESNext"],
     "listFiles": true,
     "moduleResolution": "node",
     "outDir": "./dist/",

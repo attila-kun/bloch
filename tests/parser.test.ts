@@ -5,6 +5,10 @@ describe("latex parser", function() {
 
   [
     {
+      expr: "",
+      expectation: null
+    },
+    {
       expr: "2+3",
       expectation: 5
     },

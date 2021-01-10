@@ -56,6 +56,10 @@ function Calc(expr: string, infix?) {
   // supplied expression (e.g. an operator, a constant or
   // a variable)
   var in_tokens = this.expr.match(/(\^\+|\^-|\^|\*|\/|\+|\-|\(|\)|[a-zA-Z0-9\.]+)/gi);
+
+  if (!in_tokens)
+    return;
+
   var op_stack = [];
 
   in_tokens.forEach(function(token) {
@@ -231,7 +235,8 @@ Calc.prototype.eval = function(x) {
     }
   });
 
-  return stack.pop();
+  const result = stack.pop();
+  return typeof result === 'undefined' ? null : result;
 };
 
 Calc.prototype.latexToInfix = function(latex) {

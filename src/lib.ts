@@ -71,12 +71,11 @@ export function init() {
       <button name="Y">Y</button>
       <button name="Z">Z</button>
       <button name="H">H</button>
+      <button name="Clear">Clear</button>
     `;
 
     gateSelectorContainer.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', () => {
-        onClick(button.name);
-      });
+      button.addEventListener('click', () => onClick(button.name));
     });
 
     return {
@@ -122,13 +121,19 @@ export function init() {
       'X': [['0', '1'], ['1', '0']],
       'Y': [['0', '-i'], ['i', '0']],
       'Z': [['1', '0'], ['0', '-1']],
-      'H': [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']]
+      'H': [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']],
+      'Clear': [['', ''], ['', '']]
     }
     matrixInput.setMatrix(optionToMatrix[option]);
     setMatrixOnBloch(matrixInput.getMatrix());
   });
 
-  const setMatrixOnBloch = (matrix: Matrix2x2) => {
+  const setMatrixOnBloch = (matrix: Matrix2x2|null) => {
+    if (matrix === null) {
+      bloch.hideRotationAxis();
+      return;
+    }
+
     const orientation = calculateOriantation(matrix);
     bloch.setRotationAxis(orientation.x, orientation.y, orientation.z, orientation.rotationAngle);
   };

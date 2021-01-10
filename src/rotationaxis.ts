@@ -77,4 +77,8 @@ export class RotationAxis
       coneContainer.rotateZ(this.rotationAngle);
     }
   }
+
+  setVisibility(visible: boolean) {
+    this.container.visible = visible;
+  }
 }

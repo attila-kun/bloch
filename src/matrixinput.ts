@@ -53,11 +53,16 @@ export class MatrixInput {
     this.u11.value = matrix[1][1];
   }
 
-  getMatrix(): Matrix2x2 {
-    return [
+  getMatrix(): Matrix2x2 | null {
+    const matrix = [
       [evaluate(this.u00.value), evaluate(this.u01.value)],
       [evaluate(this.u10.value), evaluate(this.u11.value)]
     ];
+
+    if (matrix.flat().find(item => item === null) === null)
+      return null;
+
+    return matrix as Matrix2x2;
   }
 
   private onInputChange = () => {
