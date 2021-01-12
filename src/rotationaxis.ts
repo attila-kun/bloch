@@ -1,5 +1,5 @@
 import {createArc, createArrow} from './utils';
-import {ArrowHelper, ConeGeometry, Geometry, Mesh, MeshBasicMaterial, Object3D, PointsMaterial, Points, Vector3, Line, Vector2} from 'three';
+import {ArrowHelper, ConeGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3, Line, Vector2, SphereGeometry, MeshPhongMaterial} from 'three';
 import {complex} from 'mathjs';
 
 // Renders the rotation axis and rotation angle of the unitary matrix entered by the user.
@@ -7,7 +7,7 @@ export class RotationAxis
 {
   private arc: Line;
   private direction: Vector3;
-  private dot: Points;
+  private dot: Mesh;
   private container: Object3D;
   private arrowHelper0: ArrowHelper;
   private arrowHelper1: ArrowHelper;
@@ -20,10 +20,9 @@ export class RotationAxis
     this.arrowHelper1 = createArrow(-1, 0, 0, 0xff0000);
     this.container.add(this.arrowHelper1);
 
-    const dotGeometry = new Geometry();
-    dotGeometry.vertices.push(new Vector3(0, 0, 0));
-    const dotMaterial = new PointsMaterial( { size: 10, sizeAttenuation: false } );
-    this.dot = new Points( dotGeometry, dotMaterial );
+    const dotGeometry = new SphereGeometry(0.03, 10, 10);
+    const dotMaterial = new MeshPhongMaterial({color: 0x44aa88});
+    this.dot = new Mesh(dotGeometry, dotMaterial);
     this.container.add(this.dot);
     this.container.visible = false;
   }

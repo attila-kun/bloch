@@ -38,7 +38,7 @@ export function createArrow(x: number, y: number, z: number, hex: number = 0xfff
 
 export function createSphere(): Mesh {
   const geometry = new SphereGeometry(1, 40, 40);
-  const material = new MeshPhongMaterial( {color: 0x44aa88} );
+  const material = new MeshPhongMaterial({color: 0x44aa88});
   material.transparent = true;
   material.opacity = 0.2;
   return new Mesh(geometry, material);
