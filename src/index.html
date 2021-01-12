@@ -3,7 +3,46 @@
   <head>
     <meta charset="utf-8">
     <title>Bloch</title>
+    <style>
+      body > div {
+        display: grid;
+        place-items: center center;
+      }
+
+      fieldset {
+        width: 472px;
+        border: 1px solid #ddd;
+      }
+
+      #matrixContainer > div + div {
+        margin-top: 6px;
+      }
+
+      #canvasRoot {
+        position: relative;
+        margin-top: 5px;
+      }
+
+      #buttonContainer {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+      }
+    </style>
   </head>
   <body>
+    <div>
+      <fieldset id="stateContainer">
+        <legend>Quantum state:</legend>
+
+      </fieldset>
+      <fieldset id="matrixContainer">
+        <legend>Enter a unitary matrix:</legend>
+      </fieldset>
+      <div id="canvasRoot">
+        <div id="buttonContainer"></div>
+        <div id="canvasContainer"></div>
+      </div>
+    </div>
   </body>
 </html>

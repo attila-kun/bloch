@@ -56,7 +56,12 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
   return bloch;
 }
 
-export function init() {
+export function init(
+  stateContainer: HTMLElement,
+  matrixContainer: HTMLElement,
+  canvasContainer: HTMLElement,
+  buttonContainer: HTMLElement
+) {
 
   function titleText(text: string) {
     const element = document.createElement('div');
@@ -111,11 +116,9 @@ export function init() {
     return element;
   }
 
-  document.body.appendChild(titleText("Quantum state:"));
-  const quantumStateInput = new QuantumStateInput(document.body, (theta: number, phi: number) => bloch.setQuantumStateVector(theta, phi));
+  const quantumStateInput = new QuantumStateInput(stateContainer, (theta: number, phi: number) => bloch.setQuantumStateVector(theta, phi));
 
-  document.body.appendChild(titleText("Enter a unitary matrix:"));
-  const matrixInput = new MatrixInput(document.body, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
+  const matrixInput = new MatrixInput(matrixContainer, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
   const gateSelector = createGateSelector((option: string) => {
     const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
       'X': [['0', '1'], ['1', '0']],
@@ -138,13 +141,13 @@ export function init() {
     bloch.setRotationAxis(orientation.x, orientation.y, orientation.z, orientation.rotationAngle);
   };
 
-  document.body.appendChild(gateSelector.element);
+  matrixContainer.appendChild(gateSelector.element);
 
-  document.body.appendChild(createSaveImageButton(() =>
+  buttonContainer.appendChild(createSaveImageButton(() =>
     canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")  // here is the most important part because if you dont replace you will get a DOM 18 exception.
   ));
 
   let canvas = createCanvas();
-  document.body.appendChild(canvas);
+  canvasContainer.appendChild(canvas);
   const bloch = main(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
 };
