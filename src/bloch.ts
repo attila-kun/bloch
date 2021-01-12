@@ -16,6 +16,7 @@ export function makeBloch(
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
+    antialias: true,
     preserveDrawingBuffer: true // needed for saving the image into file
   });
   const cameraPos = new THREE.Vector3(0, 0, 2);
