@@ -20,7 +20,7 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
   bloch.setQuantumStateVector(3.14/4, 3.14/2);
 
   function onPointerDown(event: MouseEvent) {
-    previousMousePosition = { x: event.offsetX, y: event.offsetY };
+    previousMousePosition = { x: event.pageX, y: event.pageY };
     bloch.onMouseDown(...toNormalizedCoordinates(canvas, event));
   }
 
@@ -29,8 +29,8 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
   function onPointerMove(event: MouseEvent) {
 
     let deltaMove = {
-      x: event.offsetX-previousMousePosition.x,
-      y: event.offsetY-previousMousePosition.y
+      x: event.pageX-previousMousePosition.x,
+      y: event.pageY-previousMousePosition.y
     };
 
     bloch.onMouseMove(
@@ -39,7 +39,7 @@ function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChange
       deltaMove.y
     );
 
-    previousMousePosition = { x: event.offsetX, y: event.offsetY };
+    previousMousePosition = { x: event.pageX, y: event.pageY };
   }
 
   function render(time: number) {
