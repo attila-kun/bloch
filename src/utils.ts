@@ -40,7 +40,7 @@ export function createSphere(): Mesh {
   const geometry = new SphereGeometry(1, 40, 40);
   const material = new MeshPhongMaterial({color: 0x44aa88});
   material.transparent = true;
-  material.opacity = 0.2;
+  material.opacity = 0.1;
   return new Mesh(geometry, material);
 }
 

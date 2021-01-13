@@ -50,9 +50,10 @@ export function makeBloch(
   object.rotateZ(-(Math.PI/2 + Math.PI/4));
   const sphere = createSphere();
   object.add(sphere);
-  object.add(createArrow(1, 0, 0));
-  object.add(createArrow(0, 1, 0));
-  object.add(createArrow(0, 0, 1));
+  const color = 0x8698b5;
+  object.add(createArrow(1, 0, 0, color));
+  object.add(createArrow(0, 1, 0, color));
+  object.add(createArrow(0, 0, 1, color));
 
   const rotationAxis = new RotationAxis();
   object.add(rotationAxis.getContainer());
