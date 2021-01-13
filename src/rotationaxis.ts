@@ -1,6 +1,6 @@
 import {createArc, createArrow} from './utils';
 import {ArrowHelper, ConeGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3, Line, Vector2, SphereGeometry, MeshPhongMaterial} from 'three';
-import {complex} from 'mathjs';
+import {abs, complex, equal} from 'mathjs';
 
 // Renders the rotation axis and rotation angle of the unitary matrix entered by the user.
 export class RotationAxis
@@ -44,6 +44,7 @@ export class RotationAxis
       return;
 
     const cosineAngle = quantumStatePoint.dot(this.direction);
+
     const closestPointOnLine = this.direction.clone().multiplyScalar(cosineAngle);
     const closestPointOnLineCoords: [number, number, number] = [closestPointOnLine.x, closestPointOnLine.y, closestPointOnLine.z];
     this.dot.position.set(...closestPointOnLineCoords);
@@ -75,6 +76,8 @@ export class RotationAxis
       cone.position.set(distance, 0, 0);
       coneContainer.rotateZ(this.rotationAngle);
     }
+
+    this.arc.visible = !equal(abs(cosineAngle), 1);
   }
 
   setVisibility(visible: boolean) {
