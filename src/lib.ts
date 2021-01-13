@@ -1,7 +1,10 @@
 import { makeBloch, QuantumStateChangeCallback } from './bloch';
 import { calculateOriantation, Matrix2x2 } from './eigen';
+import { GateSelector, SelectedGate } from './gateselector';
+import { SelectedState, StateSelector } from './stateselector';
 import { MatrixInput } from './matrixinput';
 import { QuantumStateInput } from './quantumstateinput';
+import { pi } from 'mathjs';
 
 // calculate mouse position in normalized device coordinates
 // (-1 to +1) for both components
@@ -13,7 +16,7 @@ function toNormalizedCoordinates(canvas: HTMLCanvasElement, event: MouseEvent): 
   ];
 }
 
-function main(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChangeCallback) {
+function initCanvas(canvas: HTMLCanvasElement, quantumStateChanged: QuantumStateChangeCallback) {
 
   let previousMousePosition = { x: 0, y: 0 };
   const bloch = makeBloch(canvas, quantumStateChanged);
@@ -63,31 +66,6 @@ export function init(
   buttonContainer: HTMLElement
 ) {
 
-  function titleText(text: string) {
-    const element = document.createElement('div');
-    element.innerHTML = text;
-    return element;
-  }
-
-  function createGateSelector(onClick: (option: string) => void) {
-    const gateSelectorContainer = document.createElement('div');
-    gateSelectorContainer.innerHTML = `
-      <button name="X">X</button>
-      <button name="Y">Y</button>
-      <button name="Z">Z</button>
-      <button name="H">H</button>
-      <button name="Clear">Clear</button>
-    `;
-
-    gateSelectorContainer.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', () => onClick(button.name));
-    });
-
-    return {
-      element: gateSelectorContainer
-    };
-  }
-
   function createSaveImageButton(getDataURLCallback: () => string) {
     const container = document.createElement('div');
 
@@ -117,15 +95,27 @@ export function init(
   }
 
   const quantumStateInput = new QuantumStateInput(stateContainer, (theta: number, phi: number) => bloch.setQuantumStateVector(theta, phi));
+  new StateSelector(stateContainer, (option: string) => {
+    const optionToPhiAndTheta: any = {
+      [SelectedState.state0]: { theta: 0, phi: 0 },
+      [SelectedState.state1]: { theta: pi, phi: 0 },
+      [SelectedState.statePlus]: { theta: pi/2, phi: 0 },
+      [SelectedState.stateMinus]: { theta: pi/2, phi: pi },
+    }
+
+    const { theta, phi } = optionToPhiAndTheta[option];
+    quantumStateInput.update(theta, phi);
+    bloch.setQuantumStateVector(theta, phi);
+  });
 
   const matrixInput = new MatrixInput(matrixContainer, (matrix: Matrix2x2) => setMatrixOnBloch(matrix));
-  const gateSelector = createGateSelector((option: string) => {
+  new GateSelector(matrixContainer, (option: string) => {
     const optionToMatrix: { [key: string]: [[string, string], [string, string]] } = {
-      'X': [['0', '1'], ['1', '0']],
-      'Y': [['0', '-i'], ['i', '0']],
-      'Z': [['1', '0'], ['0', '-1']],
-      'H': [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']],
-      'Clear': [['', ''], ['', '']]
+      [SelectedGate.X]: [['0', '1'], ['1', '0']],
+      [SelectedGate.Y]: [['0', '-i'], ['i', '0']],
+      [SelectedGate.Z]: [['1', '0'], ['0', '-1']],
+      [SelectedGate.H]: [['sqrt(1/2)', 'sqrt(1/2)'], ['sqrt(1/2)', '-sqrt(1/2)']],
+      [SelectedGate.Clear]: [['', ''], ['', '']]
     }
     matrixInput.setMatrix(optionToMatrix[option]);
     setMatrixOnBloch(matrixInput.getMatrix());
@@ -141,13 +131,11 @@ export function init(
     bloch.setRotationAxis(orientation.x, orientation.y, orientation.z, orientation.rotationAngle);
   };
 
-  matrixContainer.appendChild(gateSelector.element);
-
   buttonContainer.appendChild(createSaveImageButton(() =>
     canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")  // here is the most important part because if you dont replace you will get a DOM 18 exception.
   ));
 
   let canvas = createCanvas();
   canvasContainer.appendChild(canvas);
-  const bloch = main(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
+  const bloch = initCanvas(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
 };

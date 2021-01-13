@@ -24,10 +24,10 @@ export class QuantumStateInput {
     </thead>
     <tbody>
         <tr>
-            <td><input name="${AMPLITUDE0}" style="width: 75px"/></td>
+            <td><input name="${AMPLITUDE0}" style="width: 55px"/></td>
             <td>|0> + exp</td>
-            <td><input name="${PHASE}" style="width: 75px"/></td>
-            <td><input name="${AMPLITUDE1}" style="width: 75px"/></td>
+            <td>(<input name="${PHASE}" style="width: 55px"/>)</td>
+            <td><input name="${AMPLITUDE1}" style="width: 55px"/></td>
             <td>|1></td>
         </tr>
     </tbody>
