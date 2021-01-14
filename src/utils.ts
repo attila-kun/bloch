@@ -44,7 +44,7 @@ export function createSphere(): Mesh {
   return new Mesh(geometry, material);
 }
 
-export function createArc(radians: number, radius: number): Line {
+export function createArc(radians: number, radius: number, color: number = 0xffffff): Line {
   const curve = new EllipseCurve(
     0,  0,            // ax, aY
     radius, radius,   // xRadius, yRadius
@@ -55,7 +55,7 @@ export function createArc(radians: number, radius: number): Line {
 
   const points = curve.getPoints(equal(radians, 0) ? 0 : 50).map(point => new Vector3(point.x, point.y, 0));
   const geometry = new BufferGeometry().setFromPoints(points);
-  const material = new LineBasicMaterial({ color : 0xffffff });
+  const material = new LineBasicMaterial({ color });
   return new Line(geometry, material);
 }
 

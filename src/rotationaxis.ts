@@ -2,6 +2,8 @@ import {createArc, createArrow} from './utils';
 import {ArrowHelper, ConeGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3, Line, Vector2, SphereGeometry, MeshPhongMaterial} from 'three';
 import {abs, complex, equal} from 'mathjs';
 
+const COLOR = 0x5F4B8BFF;
+
 // Renders the rotation axis and rotation angle of the unitary matrix entered by the user.
 export class RotationAxis
 {
@@ -15,9 +17,9 @@ export class RotationAxis
 
   constructor() {
     this.container = new Object3D();
-    this.arrowHelper0 = createArrow(1, 0, 0, 0xff0000);
+    this.arrowHelper0 = createArrow(1, 0, 0, COLOR);
     this.container.add(this.arrowHelper0);
-    this.arrowHelper1 = createArrow(-1, 0, 0, 0xff0000);
+    this.arrowHelper1 = createArrow(-1, 0, 0, COLOR);
     this.container.add(this.arrowHelper1);
 
     const dotGeometry = new SphereGeometry(0.03, 10, 10);
@@ -53,7 +55,7 @@ export class RotationAxis
       this.container.remove(this.arc);
 
     const distance = quantumStatePoint.clone().sub(closestPointOnLine).length();
-    this.arc = createArc(this.rotationAngle, distance);
+    this.arc = createArc(this.rotationAngle, distance, COLOR);
     this.container.add(this.arc);
 
     this.arc.position.set(...closestPointOnLineCoords);
@@ -68,7 +70,7 @@ export class RotationAxis
     // cone at the end of the arc
     {
       const geometry = new ConeGeometry(0.02, 0.06, 16);
-      const material = new MeshBasicMaterial({color: 0xffff00});
+      const material = new MeshBasicMaterial({color: COLOR});
       const coneContainer = new Object3D();
       const cone = new Mesh(geometry, material);
       coneContainer.add(cone);
