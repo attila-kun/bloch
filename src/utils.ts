@@ -1,5 +1,5 @@
 import {ArrowHelper, BufferGeometry, DoubleSide, EllipseCurve, Intersection, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, PlaneGeometry, SphereGeometry, Texture, Vector3} from 'three';
-import {acos, atan2, cos, equal, pi, sin} from 'mathjs';
+import {cos, equal, sin} from 'mathjs';
 
 type Map<T> = { [key: string]: T };
 export type IntersectionMap = Map<Intersection>;
