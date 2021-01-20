@@ -5,13 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Bloch</title>
     <style>
-      body > div {
-        width: 500px;
-        margin: auto auto;
+
+      html, body, #container {
+        height: 100%;
       }
 
-      fieldset {
-        width: 472px;
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #container {
+        display: grid;
+        grid-template-rows: auto minmax(300px, auto);
+        justify-items: center;
+      }
+
+      #settings fieldset {
         border: 1px solid #ddd;
       }
 
@@ -22,7 +32,10 @@
 
       #canvasRoot {
         position: relative;
-        margin-top: 5px;
+      }
+
+      #canvasContainer {
+        height: 100%;
       }
 
       #buttonContainer {
@@ -33,14 +46,16 @@
     </style>
   </head>
   <body>
-    <div>
-      <fieldset id="stateContainer">
-        <legend>Quantum state:</legend>
+    <div id="container">
+      <div id="settings">
+        <fieldset id="stateContainer">
+          <legend>Quantum state:</legend>
 
-      </fieldset>
-      <fieldset id="matrixContainer">
-        <legend>Enter a unitary matrix:</legend>
-      </fieldset>
+        </fieldset>
+        <fieldset id="matrixContainer">
+          <legend>Enter a unitary matrix:</legend>
+        </fieldset>
+      </div>
       <div id="canvasRoot">
         <div id="buttonContainer"></div>
         <div id="canvasContainer"></div>

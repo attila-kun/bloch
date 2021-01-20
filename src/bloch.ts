@@ -156,6 +156,12 @@ export function makeBloch(
       rotationAxis.setVisibility(false);
     },
 
+    // should be called when the canvas is resized
+    adjustCanvas() {
+      camera.updateProjectionMatrix();
+      renderer.setSize(canvas.width, canvas.height);
+    },
+
     setRotationAxis(x: number, y: number, z: number, rotationAngle: number) {
       rotationAxis.setDirection(new THREE.Vector3(x, y, z), rotationAngle);
       rotationAxis.setArc(_stateVector.getStateVector());

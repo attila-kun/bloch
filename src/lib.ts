@@ -135,7 +135,15 @@ export function init(
     canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")  // here is the most important part because if you dont replace you will get a DOM 18 exception.
   ));
 
-  let canvas = createCanvas();
+  let canvas: HTMLCanvasElement = createCanvas();
   canvasContainer.appendChild(canvas);
   const bloch = initCanvas(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
+
+  return {
+    resizeCanvas() {
+      canvas.height = canvas.parentElement.clientHeight;
+      canvas.width = canvas.parentElement.clientHeight;
+      bloch.adjustCanvas();
+    }
+  };
 };
