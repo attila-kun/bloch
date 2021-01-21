@@ -157,7 +157,7 @@ export function makeBloch(
     },
 
     // should be called when the canvas is resized
-    adjustCanvas() {
+    adaptToResizedCanvas() {
       camera.updateProjectionMatrix();
       renderer.setSize(canvas.width, canvas.height);
     },

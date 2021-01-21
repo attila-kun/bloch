@@ -4,7 +4,7 @@ import { GateSelector, SelectedGate } from './gateselector';
 import { SelectedState, StateSelector } from './stateselector';
 import { MatrixInput } from './matrixinput';
 import { QuantumStateInput } from './quantumstateinput';
-import { pi } from 'mathjs';
+import { min, pi } from 'mathjs';
 
 // calculate mouse position in normalized device coordinates
 // (-1 to +1) for both components
@@ -140,10 +140,10 @@ export function init(
   const bloch = initCanvas(canvas, (theta, phi) => quantumStateInput.update(theta, phi));
 
   return {
-    resizeCanvas() {
-      canvas.height = canvas.parentElement.clientHeight;
-      canvas.width = canvas.parentElement.clientHeight;
-      bloch.adjustCanvas();
+    resizeCanvas(size: number) {
+      canvas.height = size;
+      canvas.width = size;
+      bloch.adaptToResizedCanvas();
     }
   };
 };

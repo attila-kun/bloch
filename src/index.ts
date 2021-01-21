@@ -8,9 +8,11 @@ window.onload = function() {
     document.getElementById("buttonContainer"),
   );
 
-  bloch.resizeCanvas();
+  function resizeCanvas() {
+    const canvasContainer = document.getElementById("canvasContainer");
+    bloch.resizeCanvas(canvasContainer.clientHeight);
+  }
 
-  window.onresize = function() {
-    bloch.resizeCanvas();
-  };
+  window.onresize = resizeCanvas;
+  resizeCanvas();
 };

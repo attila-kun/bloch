@@ -17,7 +17,8 @@
 
       #container {
         display: grid;
-        grid-template-rows: auto minmax(300px, auto);
+        grid-template-rows: min-content  auto;
+        grid-auto-columns: 1fr;
         justify-items: center;
       }
 
@@ -30,12 +31,20 @@
         margin-top: 6px;
       }
 
+      #matrixContainer input {
+        width: 145px;
+      }
+
       #canvasRoot {
-        position: relative;
+        width: 100%;
+        overflow: hidden;
+        text-align: center;
       }
 
       #canvasContainer {
+        display: inline-block;
         height: 100%;
+        position: relative;
       }
 
       #buttonContainer {
@@ -57,8 +66,9 @@
         </fieldset>
       </div>
       <div id="canvasRoot">
-        <div id="buttonContainer"></div>
-        <div id="canvasContainer"></div>
+        <div id="canvasContainer">
+          <div id="buttonContainer"></div>
+        </div>
       </div>
     </div>
   </body>
