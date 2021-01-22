@@ -16,10 +16,12 @@
       }
 
       #container {
-        display: grid;
-        grid-template-rows: min-content  auto;
-        grid-auto-columns: 1fr;
-        justify-items: center;
+        display: flex;
+        flex-flow: row wrap;
+      }
+
+      #settings {
+        height: fit-content;
       }
 
       #settings fieldset {
@@ -36,15 +38,16 @@
       }
 
       #canvasRoot {
-        width: 100%;
+        flex: 1;
+        position: relative;
         overflow: hidden;
-        text-align: center;
+        min-width: 500px;
       }
 
       #canvasContainer {
+        position: absolute;
         display: inline-block;
         height: 100%;
-        position: relative;
       }
 
       #buttonContainer {
