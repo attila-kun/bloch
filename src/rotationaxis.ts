@@ -2,7 +2,7 @@ import {createArc, createArrow} from './utils';
 import {ArrowHelper, ConeGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3, Line, Vector2, SphereGeometry, MeshPhongMaterial} from 'three';
 import {abs, complex, equal} from 'mathjs';
 
-const COLOR = 0x5F4B8BFF;
+const COLOR = 0xFF0000;
 
 // Renders the rotation axis and rotation angle of the unitary matrix entered by the user.
 export class RotationAxis
