@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+// Adapted from https://stackoverflow.com/questions/18477968/convert-latex-to-dynamic-javascript-function
+
 import {add, complex, divide, multiply, pow, sqrt, subtract} from 'mathjs';
 
 var CALC_CONST = {
@@ -16,7 +18,6 @@ var CALC_NUMARGS: [RegExp, number][] = [
   [FUNCTION_REGEX, 1]
 ];
 
-// Adapted from https://stackoverflow.com/questions/18477968/convert-latex-to-dynamic-javascript-function
 function Calc(expr: string, infix?) {
   this.valid = true;
   this.expr = expr;
