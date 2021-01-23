@@ -2,7 +2,7 @@ Demo: https://attilakun.net/bloch
 
 # What is this?
 
-This a [Bloch sphere](https://en.wikipedia.org/wiki/Bloch_sphere) visualizer tool. It allows you to enter arbitrary 2x2 matrices and see their effect on the quantum state.
+This a [Bloch sphere](https://en.wikipedia.org/wiki/Bloch_sphere) simulator. It allows you to enter arbitrary 2x2 matrices and see their effect on the quantum state.
 
 # Requirements to run the project
 
@@ -10,6 +10,10 @@ The project uses Node.js for its build. At the time of writing, the project was 
 
 # Running the project
 
-1. Check the repo out.
-2. Run `npm install`.
-3. Run `npm run start`.
+1. Check the repo out
+2. Run `npm install`
+3. Run `npm run start`
+
+# Running the tests
+
+Run `npm run test`
