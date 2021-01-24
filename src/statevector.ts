@@ -135,7 +135,7 @@ export class StateVector {
     const alignmentTheta = theta/2+0.09;
     this.thetaLabel.position.set(...polarToCaertesian(alignmentTheta, phi, 0.5));
     this.thetaLabel.rotation.set(pi/2, phi, -alignmentTheta);
-    this.thetaLabel.visible = theta > 0.2; // only render if there is enough spcae for the label to appear
+    this.thetaLabel.visible = theta > 0.2; // only render if there is enough space for the label to appear
 
     this.arrow.setDirection(point);
     this.updateText();
